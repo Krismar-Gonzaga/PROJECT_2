@@ -123,7 +123,11 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
                 }
             } else if (id == R.id.nav_user) {
                 navigateToProfile();
-            }else if (id == R.id.nav_logout){
+            }
+            else if (id == R.id.nav_logs) { // <--- Add this block
+                Intent intent = new Intent(this, LogsActivity.class);
+                startActivity(intent);}
+            else if (id == R.id.nav_logout){
                 navigateToLogout();
             }
 
@@ -174,7 +178,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
                 .commit();
     }
     private void navigateToLogout() {
-
+        LogManager.getInstance().log("User logged out: " + (currentUser != null ? currentUser.getEmailAddress() : "unknown"));
         SharedPreferences preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         preferences.edit().clear().apply();
 

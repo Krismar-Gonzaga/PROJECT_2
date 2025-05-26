@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Replace with actual LoginActivity if you have one
                 Toast.makeText(MainActivity.this, "Go to Sign In screen", Toast.LENGTH_SHORT).show();
-                 startActivity(new Intent(MainActivity.this, Login.class));
+                startActivity(new Intent(MainActivity.this, Login.class));
             }
         });
 
@@ -64,12 +64,15 @@ public class MainActivity extends AppCompatActivity {
                 String password = passwordInput.getText().toString().trim();
                 String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
+                LogManager.getInstance().log("Signup attempt: " + email);
+
                 if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword) || TextUtils.isEmpty(name) ) {
                     Toast.makeText(MainActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                    LogManager.getInstance().log("Signup failed: empty fields");
                 } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(MainActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                    LogManager.getInstance().log("Signup failed: passwords do not match for " + email);
                 } else {
-
                     Cursor cursor = db.getUsers();
                     if (cursor.getCount() == 0){
                         usertype = "admin";
@@ -80,16 +83,15 @@ public class MainActivity extends AppCompatActivity {
                     User account_login = new User("", email, password, usertype, name, "", "");
                     boolean inserted = db.insertdata(account_login);
                     if (inserted) {
-                        // Here, you would normally save to database or Firebase
                         Toast.makeText(MainActivity.this, "Sign-up successful!", Toast.LENGTH_SHORT).show();
+                        LogManager.getInstance().log("Signup success: " + email);
                         Intent intent = new Intent(MainActivity.this, Login.class);
-//                        intent.putExtra("CURRENT_USER", account_login); // Pass Parcelable object
                         startActivity(intent);
-                        finish(); // Close login activity
+                        finish();
                     } else {
                         Toast.makeText(MainActivity.this, "Email already exists!", Toast.LENGTH_SHORT).show();
+                        LogManager.getInstance().log("Signup failed: email exists for " + email);
                     }
-
                 }
             }
         });

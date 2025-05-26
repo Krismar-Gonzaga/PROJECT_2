@@ -46,6 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:hint="Product Name"
+            android:textColor="#000000"
+            android:textColorHint="#666666"
             android:minHeight="48dp"
             android:padding="10dp" />
 
@@ -54,6 +56,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:textColor="#000000"
+            android:textColorHint="#666666"
             android:hint="Product Price"
             android:inputType="numberDecimal"
             android:minHeight="48dp" />
@@ -65,7 +69,9 @@
             android:layout_marginTop="20dp"
             android:hint="Total Quantity"
             android:inputType="number"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textColor="#000000"
+            android:textColorHint="#666666"/>
         <!-- Upload Image Button -->
         <Button
             android:id="@+id/uploadImage"

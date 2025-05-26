@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-
 import java.util.ArrayList;
 
 public class Login extends AppCompatActivity {
@@ -59,8 +58,11 @@ public class Login extends AppCompatActivity {
                 String email = emaillogin.getText().toString().trim();
                 String password = passwordlogin.getText().toString().trim();
 
+                LogManager.getInstance().log("Login attempt: " + email);
+
                 if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
                     Toast.makeText(Login.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                    LogManager.getInstance().log("Login failed: empty fields");
                 } else {
                     boolean notfound = false;
                     for (User user: User) {
@@ -68,6 +70,7 @@ public class Login extends AppCompatActivity {
                                 password.equals(user.getPassword().trim())) {
                             User currentUser = user;
                             Toast.makeText(Login.this, "Login Successfully", Toast.LENGTH_SHORT).show();
+                            LogManager.getInstance().log("Login success: " + email);
                             notfound = true;
                             // Pass user to homeactivity
                             Intent intent = new Intent(getBaseContext(), homeactivity.class);
@@ -77,6 +80,7 @@ public class Login extends AppCompatActivity {
                     }
                     if (!notfound) {
                         Toast.makeText(Login.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                        LogManager.getInstance().log("Login failed: invalid credentials for " + email);
                     }
                 }
             }
@@ -98,7 +102,7 @@ public class Login extends AppCompatActivity {
                         cursor.getString(3),
                         cursor.getString(5),
                         cursor.getString(6)
-                        );
+                );
                 User.add(account);
             }
         }

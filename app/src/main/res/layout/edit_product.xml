@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:hint="Product Name"
+            android:textColor="#666666"
             android:minHeight="48dp"
             android:padding="10dp" />
 
@@ -45,6 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:hint="Product Price"
+            android:textColor="#666666"
             android:minHeight="48dp" />
 
         <EditText
@@ -53,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:hint="Total Quantity"
+            android:textColor="#666666"
             android:inputType="number"
             android:minHeight="48dp" />
 
