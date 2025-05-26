@@ -42,7 +42,6 @@ public class Profile_activity extends Fragment {
         // Initialize your TextViews
         TextView Username = view.findViewById(R.id.Username);
         TextView Useremail = view.findViewById(R.id.User_email);
-        TextView Userstore = view.findViewById(R.id.User_store_name);
         TextView Userstarted = view.findViewById(R.id.User_started);
 
         Log.d("ProfileActivity", "onCreateView: currentUser is " + (currentUser == null ? "null" : currentUser.toString()));
@@ -50,7 +49,6 @@ public class Profile_activity extends Fragment {
             Log.d("ProfileActivity", "onCreateView: currentUser.getName() is " + currentUser.getName());
             Username.setText("User Name: " + currentUser.getName());
             Useremail.setText("Email: " + currentUser.getEmailAddress());
-            Userstore.setText("Store Name: " + currentUser.getStore_name());
             Userstarted.setText("Started: " + currentUser.getStarted());
         } else {
             Log.d("ProfileActivity", "onCreateView: currentUser is null, cannot set text.");

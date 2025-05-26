@@ -59,15 +59,6 @@
                 android:textSize="16sp"
                 android:layout_marginTop="18dp" />
 
-            <!-- Store Name -->
-            <TextView
-                android:id="@+id/User_store_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Store Name: "
-                android:textColor="#444"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp" />
 
             <!-- Started Since -->
             <TextView

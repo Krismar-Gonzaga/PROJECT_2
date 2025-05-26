@@ -74,7 +74,10 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
                 .replace(R.id.fragment_container, new Home())
                 .commit();
 
-
+        // Hide 'Logs' menu item for non-admin users
+        if (!currentUser.getType().equals("admin")) {
+            navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
+        }
     }
 
     private void initViews() {
@@ -125,7 +128,11 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
                 navigateToProfile();
             }
             else if (id == R.id.nav_logs) {
-                navigateToFragment(new LogsFragment(), "Logs");
+                if(currentUser.getType().equals("admin")) {
+                    navigateToFragment(new LogsFragment(), "Logs");
+                } else {
+                    Toast.makeText(this, "Admin access only", Toast.LENGTH_SHORT).show();
+                }
             }
             else if (id == R.id.nav_logout){
                 navigateToLogout();
