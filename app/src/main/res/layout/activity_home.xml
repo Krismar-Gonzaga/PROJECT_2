@@ -64,30 +64,24 @@
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="548dp"
+            android:layout_height="658dp"
             android:layout_marginTop="54dp"
             android:orientation="vertical">
 
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
 
-
-
+                android:id="@+id/fab_add"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="24dp"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_add"
+                app:backgroundTint="@color/white"
+                app:maxImageSize="37dp"
+                tools:ignore="TouchTargetSizeCheck" />
         </FrameLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-
-            android:id="@+id/fab_add"
-
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginLeft="250dp"
-            android:layout_marginTop="520dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/white"
-            app:maxImageSize="37dp"
-            tools:ignore="TouchTargetSizeCheck" />
-
 
 
         <LinearLayout

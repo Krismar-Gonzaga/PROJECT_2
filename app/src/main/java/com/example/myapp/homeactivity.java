@@ -124,9 +124,9 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
             } else if (id == R.id.nav_user) {
                 navigateToProfile();
             }
-            else if (id == R.id.nav_logs) { // <--- Add this block
-                Intent intent = new Intent(this, LogsActivity.class);
-                startActivity(intent);}
+            else if (id == R.id.nav_logs) {
+                navigateToFragment(new LogsFragment(), "Logs");
+            }
             else if (id == R.id.nav_logout){
                 navigateToLogout();
             }

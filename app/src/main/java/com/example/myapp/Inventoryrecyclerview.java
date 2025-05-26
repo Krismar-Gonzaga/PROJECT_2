@@ -41,10 +41,10 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         productobject product = products.get(position);
 
-        holder.productId.setText(product.getId());
         holder.productName.setText(product.getName());
         String quantity = product.getQuantity() + " / " + product.getOverquantity();
         holder.quantity.setText(quantity);
+        holder.productPrice.setText("₱" + product.getPrice());
 
         Bitmap image = product.getImage();
         if (image != null) {
@@ -70,7 +70,7 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView productImage;
-        TextView quantity, productId, productName;
+        TextView quantity, productName, productPrice;
         ImageView icon_edit, delete_Product;
 
         public ViewHolder(@NonNull View itemView) {
@@ -78,9 +78,9 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
             productImage = itemView.findViewById(R.id.image_product);
             delete_Product = itemView.findViewById(R.id.delete_product);
             icon_edit = itemView.findViewById(R.id.icon_edit);
-            productId = itemView.findViewById(R.id.text_product_id);
             productName = itemView.findViewById(R.id.text_product_name);
             quantity = itemView.findViewById(R.id.text_stock);
+            productPrice = itemView.findViewById(R.id.text_product_price);
         }
     }
 

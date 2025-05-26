@@ -37,13 +37,13 @@
             android:textColor="#000000" />
 
         <TextView
-            android:id="@+id/text_product_id"
+            android:id="@+id/text_stock"
             android:layout_width="wrap_content"
-            android:layout_marginTop="15dp"
             android:layout_height="wrap_content"
-            android:text="123123123123123"
-            android:textSize="14sp"
-            android:textColor="#666666" />
+            android:text="63/100"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
     </LinearLayout>
 
     <!-- Stock Info and Edit Icon -->
@@ -54,19 +54,23 @@
         android:gravity="center_vertical|end"
         android:layout_marginStart="8dp">
 
+        <!-- Product Price -->
         <TextView
-            android:id="@+id/text_stock"
+            android:id="@+id/text_product_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="63/100"
-            android:textSize="14sp"
-            android:textColor="#000000" />
+            android:text="₱0.00"
+            android:textColor="#388E3C"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
 
         <ImageView
             android:id="@+id/icon_edit"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginTop="8dp"
+            android:layout_marginRight="11dp"
             android:clickable="true"
             android:contentDescription="Edit"
             android:src="@drawable/ic_edit"

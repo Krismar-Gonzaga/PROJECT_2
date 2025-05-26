@@ -75,13 +75,13 @@
         <!-- Upload Image Button -->
         <Button
             android:id="@+id/uploadImage"
-            android:layout_width="wrap_content"
+            android:layout_width="124dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:layout_marginRight="70dp"
             android:background="@drawable/rounded_corner"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="#4CA2AF"
             android:text="Upload Image"
             android:textColor="#FFFFFF" />
 
@@ -91,8 +91,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
+            android:layout_marginLeft="60dp"
             android:background="@drawable/rounded_corner"
-            android:backgroundTint="#CF3434"
+            android:backgroundTint="#4CAF50"
             android:minHeight="48dp"
             android:text="Add Item"
             android:textColor="#FAFAFA" />
