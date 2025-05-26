@@ -1,0 +1,114 @@
+package com.example.myapp;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+public class productrecyclerview extends RecyclerView.Adapter<productrecyclerview.ViewHolder> {
+
+    private List<productobject> productObjects;
+    private Context context;
+    private OnCartUpdateListener onCartUpdateListener;
+    private database checkoutdb;
+
+    public productrecyclerview(ArrayList<productobject> productObjects, Context context,
+                               OnCartUpdateListener onCartUpdateListener) {
+        this.productObjects = productObjects != null ? productObjects : new ArrayList<>();
+        this.context = context;
+        this.onCartUpdateListener = onCartUpdateListener;
+        this.checkoutdb = new database(context);
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        productobject product = productObjects.get(position);
+
+        holder.tvName.setText(product.getName());
+        holder.tvBarcode.setText(product.getId());
+        holder.tvPrice.setText("₱ " + product.getPrice());
+
+        // Set product image if available
+        Bitmap image = product.getImage();
+        if (image != null) {
+            holder.productImage.setImageBitmap(image);
+            holder.productImage.setVisibility(View.VISIBLE);
+        } else {
+            holder.productImage.setVisibility(View.GONE);
+        }
+
+        holder.addButton.setOnClickListener(v -> {
+            // Convert image to byte array if available
+            byte[] imageBytes = null;
+            if (image != null) {
+                imageBytes = convertBitmapToByteArray(image);
+            }
+
+            // Add to checkout with quantity 1
+            boolean isAdded = checkoutdb.add_checkoutproduct(
+                    product.getId(),
+                    product.getName(),
+                    product.getPrice(),
+                    "1", // Default quantity
+                    product.getPrice(), // Total price (price * quantity)
+                    imageBytes
+            );
+
+            if (isAdded) {
+                Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
+                if (onCartUpdateListener != null) {
+                    onCartUpdateListener.onCartUpdated();
+                }
+            } else {
+                Toast.makeText(context, "Product already in cart!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return productObjects.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvName, tvBarcode, tvPrice;
+        ImageView addButton, productImage;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            productImage = itemView.findViewById(R.id.imgIcon);
+            tvBarcode = itemView.findViewById(R.id.tvBarcode);
+            tvName = itemView.findViewById(R.id.tvName);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            addButton = itemView.findViewById(R.id.btnAdd);
+        }
+    }
+
+    private byte[] convertBitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public interface OnCartUpdateListener {
+        void onCartUpdated();
+    }
+}

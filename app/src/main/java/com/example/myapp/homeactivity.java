@@ -1,0 +1,260 @@
+package com.example.myapp;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+
+public class homeactivity extends AppCompatActivity implements OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener {
+
+    // Views
+    private TextView cartBadge, PageName;
+    private ImageView checkoutbtn, dashboard, backhome, back_btn, menuIcon;
+    private FloatingActionButton floatingActionButton;
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
+
+    // Database
+    private database db;
+    private database checkoutdb;
+
+    // Current user
+    private User currentUser;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        // Initialize views
+        initViews();
+
+        // Get current user from intent
+        currentUser = getIntent().getParcelableExtra("CURRENT_USER");
+        if (currentUser == null) {
+            Toast.makeText(this, "User data missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        floatingActionButton.show();
+
+        // Setup database
+        db = new database(this);
+        checkoutdb = new database(this);
+        // Setup fragment listener for FAB visibility
+        setupFragmentListener();
+
+        // Set initial FAB visibility
+        updateFabVisibility();
+
+        // Setup navigation drawer
+        setupNavigationDrawer();
+
+        // Set initial fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new Home())
+                .commit();
+
+
+    }
+
+    private void initViews() {
+        floatingActionButton = findViewById(R.id.fab_add);
+        dashboard = findViewById(R.id.dashboard);
+        cartBadge = findViewById(R.id.cartBadge);
+        checkoutbtn = findViewById(R.id.ic_cart);
+        backhome = findViewById(R.id.backhome);
+        PageName = findViewById(R.id.Pagename);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        menuIcon = findViewById(R.id.menuIcon);
+        back_btn = findViewById(R.id.back_btn);
+        back_btn.setOnClickListener(v -> onBackPressed());
+
+        updateFabVisibility();
+    }
+
+    private void setupNavigationDrawer() {
+        drawerToggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                R.string.open,
+                R.string.close);
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        // Handle menu icon click
+        menuIcon.setOnClickListener(v -> {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        // Navigation item selection
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_inventory) {
+                if(currentUser.getType().equals("admin")) {
+                    navigateToFragment(new Inventory(), "Inventory");
+                }else{
+                    Toast.makeText(this, "Admin Access Only!", Toast.LENGTH_SHORT).show();
+                }
+            } else if (id == R.id.nav_user) {
+                navigateToProfile();
+            }else if (id == R.id.nav_logout){
+                navigateToLogout();
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.START);
+            updateFabVisibility();
+            return true;
+        });
+
+        // Other click listeners
+        backhome.setOnClickListener(v -> navigateToFragment(new Home(), "Home"));
+        dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(), "Dashboard"));
+
+        checkoutbtn.setOnClickListener(v -> {
+            navigateToFragment(new checkout_activity(this), "Checkout");
+            floatingActionButton.hide();
+        });
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentUser != null && "admin".equals(currentUser.getType())) {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, product.newInstance(currentUser))
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
+    }
+
+    private void navigateToFragment(Fragment fragment, String title) {
+        PageName.setText(title);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void navigateToProfile() {
+        PageName.setText("User Page");
+        Toast.makeText(this, currentUser.getName(), Toast.LENGTH_SHORT).show();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, Profile_activity.newInstance(currentUser))
+                .addToBackStack("profile_fragment")
+                .commit();
+    }
+    private void navigateToLogout() {
+
+        SharedPreferences preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        preferences.edit().clear().apply();
+
+        Intent intent = new Intent(this, Login.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+        Toast.makeText(this, "Logout Successfully.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupFragmentListener() {
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            updateFabVisibility();
+        });
+    }
+
+    private void updateFabVisibility() {
+        if (currentUser == null) {
+            floatingActionButton.hide();
+            return;
+        }
+
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if ("admin".equals(currentUser.getType()) &&
+                (currentFragment instanceof Inventory)) {
+            floatingActionButton.show();
+        } else {
+            floatingActionButton.hide();
+        }
+    }
+
+    @Override
+    public void onEditProduct(productobject product) {
+        if (product == null) {
+            Log.e("FRAGMENT_DEBUG", "Product is null!");
+            return;
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, edit_Activity.newInstance(product))
+                .addToBackStack("edit_product")
+                .commit();
+    }
+
+    public int getTotalOncartProduct(){
+        Cursor cursor = db.getCheckoutItems();
+        int total_product = 0;
+        while (cursor.moveToNext()){
+            total_product += 1;
+        }
+        return total_product;
+    }
+
+    public void OnCart(){
+        if(getTotalOncartProduct() != 0) {
+            cartBadge.setText(getTotalOncartProduct());
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void BackHome() {
+        navigateToFragment(new Home(), "Home");
+    }
+
+    @Override
+    public void onCartUpdated() {
+        OnCart();
+    }
+}

@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_user"
+        android:icon="@drawable/ic_user"
+        android:title="User" />
+    <item
+        android:id="@+id/nav_inventory"
+        android:icon="@drawable/inventory"
+        android:title="Inventory" />
+    <item
+        android:id="@+id/nav_logout"
+
+        android:title="Log Out" />
+</menu>

@@ -1,0 +1,315 @@
+Index: app/src/main/java/com/example/myapp/database.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/myapp/database.java b/app/src/main/java/com/example/myapp/database.java
+--- a/app/src/main/java/com/example/myapp/database.java	(date 1747907540337)
++++ b/app/src/main/java/com/example/myapp/database.java	
+@@ -1,233 +1,109 @@
+-package com.example.myapp;
+-import android.annotation.SuppressLint;
++Please Create function that can clear all date on checkout table:
++
++        package com.example.myapp;
++
+ import android.content.ContentValues;
+-import android.content.Context;
+ import android.database.Cursor;
+ import android.database.sqlite.SQLiteDatabase;
+ import android.database.sqlite.SQLiteOpenHelper;
+-import android.util.Log;
++import android.widget.Toast;
+ 
+ import androidx.annotation.Nullable;
+ 
++import java.util.ArrayList;
++
+ public class database extends SQLiteOpenHelper {
+-    // Database and table names
+-    public static final String DATABASE_NAME = "BODEGA";
+-    public static final String TABLE_USER = "User";
+-    public static final String TABLE_PRODUCT = "product";
+-    public static final String TABLE_CHECKOUT = "checkout";
++    public static final String DATABASE_NAME = "accountdb";
++    public final String TABLE_NAME = "User";
++    public final String ID = "Id";
++    public final String emailaddress = "Emailaddress";
++    public final String password = "Password";
++    public final String username = "Username";
++    public final String phonenumber = "Phonenumber";
++    public final String address = "Address";
++    public final String age = "Age";
++    public final String storename = "Store_Name";
++    public final String started = "Started";
+ 
+-    // User table columns
+-    public static final String COL_USER_ID = "user_id";
+-    public static final String COL_EMAIL = "email";
+-    public static final String COL_PASSWORD = "password";
+-    public static final String COL_USERNAME = "username";
+-    public static final String COL_PHONE = "phone";
+-    public static final String COL_ADDRESS = "address";
+-    public static final String COL_AGE = "age";
+-    public static final String COL_STORE_NAME = "store_name";
+-    public static final String COL_STARTED = "started";
+ 
+-    // Product table columns
+-    public static final String COL_PRODUCT_ID = "product_id";
+-    public static final String COL_PRODUCT_NAME = "name";
+-    public static final String COL_PRICE = "price";
+-    public static final String COL_QUANTITY = "quantity";
++    public database(@Nullable MainActivity context) {
++        super(context, DATABASE_NAME, null, 1);
+ 
+-    // Checkout table columns
+-    public static final String COL_CHECKOUT_ID = "checkout_id";
+-    public static final String COL_TOTAL_PRICE = "total_price";
+-
+-    public database(Context context) {
++    }
++    public database(@Nullable Login context) {
+         super(context, DATABASE_NAME, null, 1);
++
+     }
++
+ 
+     @Override
+-    public void onConfigure(SQLiteDatabase db) {
+-        super.onConfigure(db);
+-        db.setForeignKeyConstraintsEnabled(true);
++    public String getDatabaseName() {
++        return DATABASE_NAME;
+     }
+ 
+     @Override
+     public void onCreate(SQLiteDatabase db) {
+-        // Create User table
+-        String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
+-                + COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+-                + COL_EMAIL + " TEXT UNIQUE NOT NULL,"
+-                + COL_PASSWORD + " TEXT NOT NULL,"
+-                + COL_USERNAME + " TEXT NOT NULL,"
+-                + COL_PHONE + " TEXT NOT NULL,"
+-                + COL_ADDRESS + " TEXT NOT NULL,"
+-                + COL_AGE + " TEXT NOT NULL,"
+-                + COL_STORE_NAME + " TEXT NOT NULL,"
+-                + COL_STARTED + " TEXT NOT NULL"
+-                + ")";
+-        db.execSQL(CREATE_USER_TABLE);
+-
+-        // Create Product table with foreign key to User
+-        String CREATE_PRODUCT_TABLE = "CREATE TABLE " + TABLE_PRODUCT + "("
+-                + COL_PRODUCT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+-                + COL_USER_ID + " INTEGER NOT NULL,"
+-                + COL_PRODUCT_NAME + " TEXT NOT NULL,"
+-                + COL_PRICE + " FLOAT NOT NULL,"
+-                + COL_QUANTITY + " INTEGER NOT NULL,"
+-                + "FOREIGN KEY(" + COL_USER_ID + ") REFERENCES "
+-                + TABLE_USER + "(" + COL_USER_ID + ")"
+-                + ")";
+-        db.execSQL(CREATE_PRODUCT_TABLE);
+-
+-        // Create Checkout table with foreign key to Product
+-        String CREATE_CHECKOUT_TABLE = "CREATE TABLE " + TABLE_CHECKOUT + "("
+-                + COL_CHECKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+-                + COL_PRODUCT_ID + " INTEGER NOT NULL,"
+-                + COL_PRODUCT_NAME + " TEXT NOT NULL,"
+-                + COL_PRICE + " FLOAT NOT NULL,"
+-                + COL_QUANTITY + " INTEGER NOT NULL,"
+-                + COL_TOTAL_PRICE + " FLOAT NOT NULL,"
+-                + "FOREIGN KEY(" + COL_PRODUCT_ID + ") REFERENCES "
+-                + TABLE_PRODUCT + "(" + COL_PRODUCT_ID + ")"
+-                + ")";
+-        db.execSQL(CREATE_CHECKOUT_TABLE);
++        db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
++                ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
++                emailaddress + " TEXT UNIQUE, " +
++                password + " TEXT NOT NULL, " +
++                username + " TEXT NOT NULL, " +
++                age + " TEXT NOT NUll , " +
++                storename + " TEXT NOT NULL, " +
++                started + " TEXT NOT NULL, " +
++                phonenumber + " TEXT NOT NULL ," +
++                address + " TEXT NOT NULL" +
++                ")");
+     }
+ 
+     @Override
+     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHECKOUT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
++        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+         onCreate(db);
+     }
+ 
+-    // User methods
+     public boolean insertdata(User account) {
+-        SQLiteDatabase db = this.getWritableDatabase();
+-        try (Cursor cursor = db.query(TABLE_USER,
+-                new String[]{COL_EMAIL},
+-                COL_EMAIL + "=?",
+-                new String[]{account.getEmailAddress()},
+-                null, null, null)) {
+-
+-            if (cursor.getCount() > 0) {
+-                return false; // Email already exists
+-            }
+-
+-            ContentValues values = new ContentValues();
+-            values.put(COL_EMAIL, account.getEmailAddress());
+-            values.put(COL_PASSWORD, account.getPassword());
+-            values.put(COL_USERNAME, account.getName());
+-            values.put(COL_AGE, account.getAge());
+-            values.put(COL_STORE_NAME, account.getStore_name());
+-            values.put(COL_STARTED, account.getStarted());
+-            values.put(COL_PHONE, account.getPhone_number());
+-            values.put(COL_ADDRESS, account.getAddress());
+-
+-            long result = db.insert(TABLE_USER, null, values);
+-            return result != -1;
+-        } finally {
+-            db.close();
+-        }
+-    }
+-
+-    public Cursor getUsers() {
+-        SQLiteDatabase db = this.getReadableDatabase();
+-        return db.rawQuery("SELECT * FROM " + TABLE_USER, null);
+-    }
+-
+-    // Product methods
+-    public boolean add_product(String userId, String product_name, String product_price, String product_quantity) {
+-        SQLiteDatabase db = this.getWritableDatabase();
+-        try {
+-            ContentValues values = new ContentValues();
+-            values.put(COL_USER_ID, Integer.parseInt(userId));
+-            values.put(COL_PRODUCT_NAME, product_name);
+-            values.put(COL_PRICE, Float.parseFloat(product_price));
+-            values.put(COL_QUANTITY, Integer.parseInt(product_quantity));
+-
+-            long result = db.insert(TABLE_PRODUCT, null, values);
+-            return result != -1;
+-        } finally {
+-            db.close();
+-        }
+-    }
+-
+-    public boolean updateProduct(productobject product) {
+-        SQLiteDatabase db = this.getWritableDatabase();
+-
+-        try {
+-            ContentValues values = new ContentValues();
+-            values.put(COL_PRODUCT_NAME, product.getName());
+-            values.put(COL_PRICE, Float.parseFloat(product.getPrice()));
+-            values.put(COL_QUANTITY, Integer.parseInt(product.getQuantity()));
+-            int rowsUpdated = db.update(TABLE_PRODUCT, values,
+-                    COL_PRODUCT_ID + " = ?",
+-                    new String[]{product.getId()});
+-            return rowsUpdated > 0;
+-        } finally {
+-            db.close();
+-        }
+-    }
+-
+-    public Cursor getProduct() {
+-        SQLiteDatabase db = this.getReadableDatabase();
+-        return db.rawQuery("SELECT * FROM " + TABLE_PRODUCT, null);
+-    }
+-
+-    // Checkout methods
+-    public boolean add_checkoutproduct(int productId, String product_name,
+-                                       String product_price, String product_quantity,
+-                                       String total_price) {
+-        SQLiteDatabase db = this.getWritableDatabase();
+-        Cursor cursor = getcheckout();
++        Cursor cursor = showall();
++        boolean alreadyexists = false;
+         while(cursor.moveToNext()){
+-            if (Integer.parseInt(cursor.getString(1)) == productId){
+-                return false;
+-            }
+-        }
+-        try {
+-            ContentValues values = new ContentValues();
+-            values.put(COL_PRODUCT_ID, productId);
+-            values.put(COL_PRODUCT_NAME, product_name);
+-            values.put(COL_PRICE, Float.parseFloat(product_price));
+-            values.put(COL_QUANTITY, Integer.parseInt(product_quantity));
+-            values.put(COL_TOTAL_PRICE, Float.parseFloat(total_price));
+-
+-            long result = db.insert(TABLE_CHECKOUT, null, values);
+-            return result != -1;
+-        } finally {
+-            db.close();
+-        }
+-    }
+-
+-    public Cursor getcheckout() {
+-        SQLiteDatabase db = this.getReadableDatabase();
+-        return db.rawQuery("SELECT * FROM " + TABLE_CHECKOUT, null);
+-    }
+-
+-    public boolean deleteProduct(String id) {
+-        SQLiteDatabase db = this.getWritableDatabase();
+-        try {
+-            int rowsDeleted = db.delete(TABLE_CHECKOUT,
+-                    COL_CHECKOUT_ID + " = ?",
+-                    new String[]{id});
+-            return rowsDeleted > 0;
+-        } finally {
+-            db.close();
++            if (cursor.getString(1).trim().equals(account.getEmailAddress().trim())){
++                alreadyexists = true;
++            }
++        }
++
++
++        if (alreadyexists){
++            return false;
++        }else {
++            SQLiteDatabase db = this.getWritableDatabase();
++            ContentValues contentvalue = new ContentValues();
++            contentvalue.put(this.emailaddress, account.getEmailAddress());
++            contentvalue.put(this.password, account.getPassword());
++            contentvalue.put(this.username, account.getName());
++            contentvalue.put(this.age, account.getAge());
++            contentvalue.put(this.storename, account.getStore_name());
++            contentvalue.put(this.started, account.getStarted());
++            contentvalue.put(this.phonenumber, account.getPhone_number());
++            contentvalue.put(this.address, account.getAddress());
++
++            long result = db.insert(TABLE_NAME, null, contentvalue);
++            db.close(); // Close the database connection
++            return result != -1;
+         }
+     }
+ 
+-    public boolean updatecheckout(String id, String newQuantity, String newTotalPrice) {
++
++
++    public Cursor showall(){
++        String query = "SELECT * FROM " + TABLE_NAME;
+         SQLiteDatabase db = this.getWritableDatabase();
+ 
+-        try {
+-            ContentValues values = new ContentValues();
+-            values.put(COL_QUANTITY, Integer.parseInt(newQuantity));
+-            values.put(COL_TOTAL_PRICE, Float.parseFloat(newTotalPrice));
++        Cursor cursor = null;
++        if (db != null){
++            cursor= db.rawQuery(query, null);
+ 
+-            int rowsUpdated = db.update(TABLE_CHECKOUT, values,
+-                    COL_CHECKOUT_ID + " = ?",
+-                    new String[]{id});
+-            return rowsUpdated > 0;
+-        } finally {
+-            db.close();
+         }
++        return cursor;
+     }
++
+ }
+\ No newline at end of file

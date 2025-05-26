@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/product_corner">
+
+    <!-- Product Image -->
+    <ImageView
+        android:id="@+id/image_product"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/logo"
+        android:scaleType="centerCrop"
+        android:background="#E0E0E0"
+        android:contentDescription="Product image"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Product Info (Name and ID) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_product_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="Product Name"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/text_product_id"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_height="wrap_content"
+            android:text="123123123123123"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+
+    <!-- Stock Info and Edit Icon -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical|end"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/text_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="63/100"
+            android:textSize="14sp"
+            android:textColor="#000000" />
+
+        <ImageView
+            android:id="@+id/icon_edit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:contentDescription="Edit"
+            android:src="@drawable/ic_edit"
+            app:tint="#444444"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageView
+            android:id="@+id/delete_product"
+            android:layout_marginTop="15dp"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_delete_24" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Top App Bar -->
+
+        <!-- User Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="108dp"
+                android:layout_marginEnd="16dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_user" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <HorizontalScrollView
+                    android:layout_width="270dp"
+                    android:layout_height="30dp">
+
+                    <TextView
+                        android:id="@+id/Username"
+                        android:layout_width="270dp"
+                        android:layout_height="30dp"
+                        android:text="User Name: "
+                        android:textColor="#000000"
+                        android:maxLength="100"
+                        android:textSize="20dp" />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Details Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="423dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/user_border"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <HorizontalScrollView
+                android:layout_width="350dp"
+                android:layout_height="56dp"
+                >
+                <TextView
+                    android:id="@+id/User_email"
+                    android:layout_width="350dp"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="0"
+                    android:textColor="@color/black"
+                    android:text="Email : "
+                    android:textSize="25dp"
+                    android:ellipsize="end"/>
+
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/User_store_name"
+                android:layout_width="350dp"
+                android:layout_height="56dp"
+                android:layout_weight="0"
+                android:maxLength="100"
+                android:layout_marginBottom="10dp"
+                android:text="Store name: "
+                android:textColor="@color/black"
+                android:textSize="25dp" />
+
+            <TextView
+                android:id="@+id/User_started"
+                android:layout_width="350dp"
+                android:layout_height="56dp"
+                android:textColor="@color/black"
+                android:maxLength="100"
+                android:layout_weight="0"
+                android:text="Started Since: xx/xx/x"
+                android:textSize="25dp" />
+        </LinearLayout>
+
+        <!-- Bottom Navigation -->
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
