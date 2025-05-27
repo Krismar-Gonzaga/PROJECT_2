@@ -185,7 +185,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
                 .commit();
     }
     private void navigateToLogout() {
-        LogManager.getInstance().log("User logged out: " + (currentUser != null ? currentUser.getEmailAddress() : "unknown"));
+        LogManager.getInstance(getApplicationContext()).log("User logged out: " + (currentUser != null ? currentUser.getEmailAddress() : "unknown"));
         SharedPreferences preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         preferences.edit().clear().apply();
 

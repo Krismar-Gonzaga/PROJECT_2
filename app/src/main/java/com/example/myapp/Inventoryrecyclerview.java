@@ -1,5 +1,5 @@
 package com.example.myapp;
-
+import android.database.Cursor;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -94,27 +94,17 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
     }
 
     private void deleteItem(int position, String productId) {
-        // Validate position and productId
         if (position < 0 || position >= products.size() || productId == null) {
             Log.e("DELETE_ERROR", "Invalid position or productId");
             return;
         }
-
-        // Perform database deletion
         boolean deleted = db.deleteProduct(productId);
-
         if (deleted) {
-            // 2. Remove from local list
             products.remove(position);
-
-            // 3. Notify adapter
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, products.size());
-
+            notifyDataSetChanged(); // Use this if you reload the data or want to be safe
             Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Failed to delete product", Toast.LENGTH_SHORT).show();
-            Log.e("DELETE_ERROR", "Database deletion failed for product ID: " + productId);
         }
     }
 

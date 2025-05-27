@@ -35,7 +35,7 @@
                 android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total Price Sold"
+                android:text="Total Profit"
                 android:textSize="14sp"
                 android:textColor="#666" />
         </LinearLayout>
@@ -75,7 +75,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="140dp"
-                    android:paddingBottom="8dp"
                     android:text="Products Sold"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -83,8 +82,8 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerSold"
-                android:layout_width="411dp"
-                android:layout_height="429dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:contentDescription="@string/invalid_password" />
         </LinearLayout>
 

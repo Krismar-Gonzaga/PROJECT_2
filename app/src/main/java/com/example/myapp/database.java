@@ -358,12 +358,13 @@ public class database extends SQLiteOpenHelper {
     }
 
     public boolean deleteProduct(String id) {
-        
         SQLiteDatabase db = this.getWritableDatabase();
         try {
-            int rowsDeleted = db.delete(TABLE_PRODUCT,
-                    COL_PRODUCT_ID + " = ?",
-                    new String[]{id});
+            // Delete from child tables first
+            db.delete(TABLE_CHECKOUT, COL_PRODUCT_ID + " = ?", new String[]{id});
+            db.delete(TABLE_SOLD, COL_PRODUCT_ID + " = ?", new String[]{id});
+            // Now delete from product table
+            int rowsDeleted = db.delete(TABLE_PRODUCT, COL_PRODUCT_ID + " = ?", new String[]{id});
             return rowsDeleted > 0;
         } finally {
             db.close();
