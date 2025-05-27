@@ -1,5 +1,8 @@
 package com.example.myapp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -55,29 +58,40 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
         } else {
             holder.productImage.setVisibility(View.GONE);
         }
-
-        checkoutdb = new database(context);
-        productobject currentproduct = getcurrentProduct(cart_product.get(position)); // Fixed missing parenthesis
+//        currentQuantity = checkoutdb.
+//        checkoutdb = new database(context);
+//        productobject currentproduct = getcurrentProduct(cart_product.get(position)); // Fixed missing parenthesis
 
         holder.increaceItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 for (productobject product: cart_product) {
                     if (product.getName().equals(holder.productname.getText().toString())) {
+                        productobject currentProduct = getcurrentProduct(cart_product.get(position));
 
+                        if (currentProduct == null) {
+                            Toast.makeText(context, "Product not found", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                            float result = Float.parseFloat(product.getTotal_price()) + Float.parseFloat(product.getPrice());
-                            String updated_total = String.valueOf(result);
+                        Toast.makeText(context, "Current Quantity: " + currentProduct.getQuantity(), Toast.LENGTH_SHORT).show();
 
-                            product.setTotal_price(updated_total);
-                            holder.total_price.setText("₱ " + updated_total);
+                        int cartQty = Integer.parseInt(cart_product.get(position).getQuantity());
 
-                            String updated_quantity = String.valueOf(Integer.parseInt(product.getQuantity()) + 1);
-
+                        if (cartQty != Integer.parseInt(currentProduct.getQuantity())) {
+                            String updated_quantity = String.valueOf(cartQty + 1);
                             product.setQuantity(updated_quantity);
                             holder.total_quantity.setText(updated_quantity);
+                            float result = Float.parseFloat(product.getTotal_price()) + Float.parseFloat(product.getPrice());
+                            String updated_total = String.valueOf(result);
+                            product.setTotal_price(updated_total);
+                            holder.total_price.setText("₱ " + updated_total);
                             checkoutdb.updatecheckout(product.getId(), updated_quantity, updated_total);
                             cartUpdateListener.onCartUpdated();
+                        }
+                         else {
+                            Toast.makeText(context, "Quantity exceeds overquantity", Toast.LENGTH_SHORT).show();
+                        }
 
                     }
                 }
@@ -102,7 +116,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                             holder.total_quantity.setText(updated_quantity);
                             checkoutdb.updatecheckout(product.getId(),updated_quantity, updated_total);
                             cartUpdateListener.onCartUpdated();
-                            }
+                        }
 
                     }
                 }
@@ -171,16 +185,16 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
     public productobject getcurrentProduct(productobject product){
         Cursor cursor = checkoutdb.getProduct();
         while (cursor.moveToNext()){
-            if (String.valueOf(cursor.getString(0)).equals(product.getId())){
+            if (String.valueOf(cursor.getString(2)).equals(product.getName())){
                 return new productobject(
                         cursor.getString(0),  // id
                         cursor.getString(2),  // name
                         cursor.getString(3),  // price
-                        cursor.getString(4),
-                        cursor.getString(4),
-                        cursor.getString(5),
+                        cursor.getString(4),  // quantity
+                        cursor.getString(4),  // quantity
+                        cursor.getString(5),  // overquantity
                         null
-                );  // quantity
+                );
             }
         }
         return null;

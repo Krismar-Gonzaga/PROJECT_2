@@ -1,6 +1,7 @@
 package com.example.myapp;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +44,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
         productobject product = productObjects.get(position);
 
         holder.tvName.setText(product.getName());
-        holder.tvBarcode.setText(product.getId());
+        holder.quantity.setText("Total Quantity: " + product.getQuantity());
         holder.tvPrice.setText("₱ " + product.getPrice());
 
         // Set product image if available
@@ -60,6 +61,30 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
             byte[] imageBytes = null;
             if (image != null) {
                 imageBytes = convertBitmapToByteArray(image);
+            }
+
+            // Check if product is already in cart and if so, get its quantity
+            int cartQty = 0;
+            Cursor cartCursor = checkoutdb.getCheckoutItems();
+            if (cartCursor != null) {
+                while (cartCursor.moveToNext()) {
+                    String cartProductId = cartCursor.getString(1); // product_id
+                    if (cartProductId.equals(product.getId())) {
+                        cartQty = Integer.parseInt(cartCursor.getString(4)); // quantity in cart
+                        break;
+                    }
+                }
+                cartCursor.close();
+            }
+            int stockQty = 0;
+            try {
+                stockQty = Integer.parseInt(product.getQuantity());
+            } catch (Exception e) {
+                stockQty = 0;
+            }
+            if (cartQty >= stockQty) {
+                Toast.makeText(context, "Cannot add more than available stock!", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             // Add to checkout with quantity 1
@@ -89,14 +114,14 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvBarcode, tvPrice;
+        TextView tvName, tvPrice ,quantity;
         ImageView addButton, productImage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.imgIcon);
-            tvBarcode = itemView.findViewById(R.id.tvBarcode);
             tvName = itemView.findViewById(R.id.tvName);
+            quantity = itemView.findViewById(R.id.quantity);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             addButton = itemView.findViewById(R.id.btnAdd);
         }

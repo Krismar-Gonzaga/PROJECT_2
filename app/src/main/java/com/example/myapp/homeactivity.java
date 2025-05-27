@@ -145,8 +145,11 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
 
         // Other click listeners
         backhome.setOnClickListener(v -> navigateToFragment(new Home(), "Home"));
-        dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(), "Dashboard"));
-
+        if(currentUser.getType().equals("admin")) {
+            dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(), "Dashboard"));
+        }else{
+            Toast.makeText(this,"Admin Access Only!",Toast.LENGTH_SHORT).show();
+        }
         checkoutbtn.setOnClickListener(v -> {
             navigateToFragment(new checkout_activity(this), "Checkout");
             floatingActionButton.hide();

@@ -101,6 +101,7 @@ public class database extends SQLiteOpenHelper {
                 + COL_PRICE + " FLOAT NOT NULL,"
                 + COL_QUANTITY + " INTEGER NOT NULL,"
                 + COL_TOTAL_PRICE + " FLOAT NOT NULL,"
+                + "transaction_id TEXT NOT NULL,"
                 + COL_PRODUCT_IMAGE + " BLOB,"
                 + "FOREIGN KEY(" + COL_PRODUCT_ID + ") REFERENCES "
                 + TABLE_PRODUCT + "(" + COL_PRODUCT_ID + ")"
@@ -267,8 +268,8 @@ public class database extends SQLiteOpenHelper {
     }
 
     public boolean add_sold_product(String productId, String productName,
-                                  String productPrice, String quantity,
-                                  String totalPrice, byte[] productImage) {
+                                    String productPrice, String quantity,
+                                    String totalPrice, byte[] productImage, String transactionId) {
         SQLiteDatabase db = null;
         try {
             db = this.getWritableDatabase();
@@ -280,6 +281,7 @@ public class database extends SQLiteOpenHelper {
             values.put(COL_PRICE, productPrice);
             values.put(COL_QUANTITY, quantity);
             values.put(COL_TOTAL_PRICE, totalPrice);
+            values.put("transaction_id", transactionId);
 
             // Add image if provided
             if (productImage != null) {
@@ -315,6 +317,7 @@ public class database extends SQLiteOpenHelper {
                             COL_PRICE,          // Price at time of sale
                             COL_QUANTITY,       // Quantity sold
                             COL_TOTAL_PRICE,    // Total price (price * quantity)
+                            "transaction_id",  // Transaction ID
                             COL_PRODUCT_IMAGE   // Product image at time of sale
                     },
                     null,       // WHERE clause
@@ -331,18 +334,18 @@ public class database extends SQLiteOpenHelper {
 
     public Cursor getCheckoutItems() {
         SQLiteDatabase db;
-            db = this.getReadableDatabase();
-            return db.query(TABLE_CHECKOUT,
-                    new String[]{
-                            COL_CHECKOUT_ID,    // Primary key of checkout table
-                            COL_PRODUCT_ID,     // Reference to product
-                            COL_PRODUCT_NAME,   // Product name
-                            COL_PRICE,          // Unit price
-                            COL_QUANTITY,       // Quantity in cart
-                            COL_TOTAL_PRICE,    // price * quantity
-                            COL_PRODUCT_IMAGE   // Product image
-                    },
-                    null, null, null, null, null);
+        db = this.getReadableDatabase();
+        return db.query(TABLE_CHECKOUT,
+                new String[]{
+                        COL_CHECKOUT_ID,    // Primary key of checkout table
+                        COL_PRODUCT_ID,     // Reference to product
+                        COL_PRODUCT_NAME,   // Product name
+                        COL_PRICE,          // Unit price
+                        COL_QUANTITY,       // Quantity in cart
+                        COL_TOTAL_PRICE,    // price * quantity
+                        COL_PRODUCT_IMAGE   // Product image
+                },
+                null, null, null, null, null);
     }
 
     public boolean delete_checkout_Product(String id) {
@@ -403,6 +406,10 @@ public class database extends SQLiteOpenHelper {
             db.close();
         }
     }
+//
+
+
+
 
     public boolean updatecheckout(String id, String newQuantity, String newTotalPrice) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -418,6 +425,13 @@ public class database extends SQLiteOpenHelper {
         } finally {
             db.close();
         }
+    }
+
+    // Add this method to clear all items from the checkout table
+    public void clearCheckoutTable() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CHECKOUT, null, null);
+        db.close();
     }
 
 

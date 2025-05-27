@@ -16,7 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class checkout_activity extends Fragment implements OnCartUpdateListener, OnSuccessfulCheckoutListener {
 
@@ -54,12 +57,6 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
             @Override
             public void onClick(View v) {
                 processCheckout();
-                boolean clear_checkout_product = Clear_all_checkout_Product();
-                Cart_Product.clear();
-
-                if (clear_checkout_product) {
-                    OnSuccessfulCheckout.BackHome();
-                }
             }
         });
 
@@ -73,7 +70,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
 
     private void processCheckout() {
         boolean isProcessed = false;
-
+        // Generate a transaction ID using current date and time
+        String transactionId = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         // Get current inventory and cart items
         ArrayList<productobject> inventoryItems = get_Product();
         ArrayList<productobject> cartItems = get_Checkout_item();
@@ -102,11 +100,10 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                                     cartItem.getPrice(),
                                     cartItem.getQuantity(),
                                     cartItem.getTotal_price(),
-                                    imageBytes
-                                    );
+                                    imageBytes,
+                                    transactionId // Pass transactionId here
+                            );
                             isProcessed = true;
-
-
                         } else {
                             Toast.makeText(getContext(),
                                     "Not enough stock for " + inventoryItem.getName(),
@@ -125,23 +122,16 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
 
         if (isProcessed) {
             // Clear the cart after successful checkout
+            checkoutdb.clearCheckoutTable();
+            Cart_Product.clear();
             refreshCartData();
             adapter.notifyDataSetChanged();
             updateTotalBill();
             Toast.makeText(getContext(), "Checkout processed successfully!", Toast.LENGTH_SHORT).show();
+            OnSuccessfulCheckout.BackHome();
         } else {
             Toast.makeText(getContext(), "No items processed!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public boolean Clear_all_checkout_Product(){
-        ArrayList<productobject> product_item = Cart_Product;
-        for(productobject product: product_item){
-            checkoutdb.delete_checkout_Product(product.getId());
-            return true;
-        }
-        return false;
-
     }
 
     public ArrayList<productobject> get_Product() {
