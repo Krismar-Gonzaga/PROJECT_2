@@ -39,39 +39,78 @@
             android:scaleType="centerCrop"
             android:visibility="gone" />
 
-
+        <!-- Product Name Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="20dp" />
+        <!-- Product Name Input -->
         <EditText
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Product Name"
+            android:hint="Enter product name"
             android:textColor="#000000"
             android:textColorHint="#666666"
             android:minHeight="48dp"
             android:padding="10dp" />
 
-        <EditText
-            android:id="@+id/price"
+        <!-- Product Price Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Price"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="20dp" />
+        <!-- Product Price Input with Peso Sign -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textColor="#000000"
-            android:textColorHint="#666666"
-            android:hint="Product Price"
-            android:inputType="numberDecimal"
-            android:minHeight="48dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱"
+                android:textSize="18sp"
+                android:textColor="#666"
+                android:paddingLeft="8dp"
+                android:paddingRight="4dp" />
+            <EditText
+                android:id="@+id/price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#000000"
+                android:textColorHint="#666666"
+                android:hint="0.00"
+                android:inputType="numberDecimal"
+                android:minHeight="48dp" />
+        </LinearLayout>
 
+        <!-- Total Quantity Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Quantity"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="20dp" />
+        <!-- Total Quantity Input -->
         <EditText
             android:id="@+id/quantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Total Quantity"
+            android:hint="Enter total quantity"
             android:inputType="number"
             android:minHeight="48dp"
             android:textColor="#000000"
             android:textColorHint="#666666"/>
+
         <!-- Upload Image Button -->
         <Button
             android:id="@+id/uploadImage"

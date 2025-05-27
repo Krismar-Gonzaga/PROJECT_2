@@ -30,35 +30,73 @@
 
         </ImageView>
 
+        <!-- Product Name Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="30dp" />
+        <!-- Product Name Input -->
         <EditText
             android:id="@+id/editname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:hint="Product Name"
+            android:hint="Enter product name"
             android:textColor="#666666"
             android:minHeight="48dp"
             android:padding="10dp" />
 
-        <EditText
-            android:id="@+id/editprice"
+        <!-- Product Price Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Price"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="40dp" />
+        <!-- Product Price Input with Peso Sign -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:hint="Product Price"
-            android:textColor="#666666"
-            android:minHeight="48dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱"
+                android:textSize="18sp"
+                android:textColor="#666"
+                android:paddingLeft="8dp"
+                android:paddingRight="4dp" />
+            <EditText
+                android:id="@+id/editprice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#666666"
+                android:hint="0.00"
+                android:minHeight="48dp" />
+        </LinearLayout>
 
+        <!-- Total Quantity Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Quantity"
+            android:textColor="#333"
+            android:textSize="15sp"
+            android:layout_marginTop="40dp" />
+        <!-- Total Quantity Input -->
         <EditText
             android:id="@+id/editquantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:hint="Total Quantity"
+            android:hint="Enter total quantity"
             android:textColor="#666666"
             android:inputType="number"
             android:minHeight="48dp" />
-
 
         <Button
             android:id="@+id/btneditItem"
@@ -67,7 +105,7 @@
             android:layout_marginLeft="140dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/rounded_corner"
-            android:backgroundTint="#CF3434"
+            android:backgroundTint="#4CAF50"
             android:minHeight="48dp"
             android:text="Save"
             android:textColor="#FAFAFA" />

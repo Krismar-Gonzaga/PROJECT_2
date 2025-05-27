@@ -82,7 +82,7 @@ public class Home extends Fragment implements OnCartUpdateListener, productrecyc
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
 
-                productobject product = new productobject(id, name, price, quantity,overquantity, quantity, productImage);
+                productobject product = new productobject(id, name, price, price, quantity, overquantity, productImage);
                 Product.add(product);
             }
         }
