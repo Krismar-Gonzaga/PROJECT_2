@@ -116,12 +116,12 @@ public class DashboardActivity extends Fragment implements OnviewAnalytics{
         } else {
             while (cursor.moveToNext()) {
                 String id = cursor.getString(0);
-                String name = cursor.getString(2);
-                String price = cursor.getString(3);
-                String quantity = cursor.getString(4);
-                String total_price = cursor.getString(5);
-                String transactionId = cursor.getString(6);
-                byte[] imageBytes = cursor.getBlob(7);
+                String name = cursor.getString(1);
+                String price = cursor.getString(2);
+                String quantity = cursor.getString(3);
+                String total_price = cursor.getString(4);
+                String transactionId = cursor.getString(5);
+                byte[] imageBytes = cursor.getBlob(6);
                 Bitmap productImage = null;
                 if (imageBytes != null) {
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);

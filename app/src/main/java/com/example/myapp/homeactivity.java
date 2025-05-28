@@ -1,5 +1,10 @@
 package com.example.myapp;
 
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -122,7 +127,9 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
+
             if (id == R.id.nav_inventory) {
+
                 if(currentUser.getType().equals("admin")) {
                     navigateToFragment(new Inventory(), "Inventory");
                 }else{
@@ -149,6 +156,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
 
         // Other click listeners
         backhome.setOnClickListener(v -> navigateToFragment(new Home(), "Home"));
+
         if(currentUser.getType().equals("admin")) {
             dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(this), "Dashboard"));
         }else{

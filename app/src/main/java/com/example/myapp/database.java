@@ -96,15 +96,12 @@ public class database extends SQLiteOpenHelper {
 
         String CREATE_SOLD_TABLE = "CREATE TABLE " + TABLE_SOLD + "("
                 + COL_CHECKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COL_PRODUCT_ID + " INTEGER NOT NULL,"
                 + COL_PRODUCT_NAME + " TEXT NOT NULL,"
                 + COL_PRICE + " FLOAT NOT NULL,"
                 + COL_QUANTITY + " INTEGER NOT NULL,"
                 + COL_TOTAL_PRICE + " FLOAT NOT NULL,"
                 + "transaction_id TEXT NOT NULL,"
-                + COL_PRODUCT_IMAGE + " BLOB,"
-                + "FOREIGN KEY(" + COL_PRODUCT_ID + ") REFERENCES "
-                + TABLE_PRODUCT + "(" + COL_PRODUCT_ID + ")"
+                + COL_PRODUCT_IMAGE + " BLOB "
                 + ")";
         db.execSQL(CREATE_SOLD_TABLE);
     }
@@ -276,7 +273,6 @@ public class database extends SQLiteOpenHelper {
             db.beginTransaction();
 
             ContentValues values = new ContentValues();
-            values.put(COL_PRODUCT_ID, productId);
             values.put(COL_PRODUCT_NAME, productName);
             values.put(COL_PRICE, productPrice);
             values.put(COL_QUANTITY, quantity);
@@ -312,7 +308,6 @@ public class database extends SQLiteOpenHelper {
             return db.query(TABLE_SOLD,
                     new String[]{
                             COL_CHECKOUT_ID,    // Primary key of sold items table
-                            COL_PRODUCT_ID,     // Reference to original product
                             COL_PRODUCT_NAME,   // Product name at time of sale
                             COL_PRICE,          // Price at time of sale
                             COL_QUANTITY,       // Quantity sold
@@ -365,7 +360,6 @@ public class database extends SQLiteOpenHelper {
         try {
             // Delete from child tables first
             db.delete(TABLE_CHECKOUT, COL_PRODUCT_ID + " = ?", new String[]{id});
-            db.delete(TABLE_SOLD, COL_PRODUCT_ID + " = ?", new String[]{id});
             // Now delete from product table
             int rowsDeleted = db.delete(TABLE_PRODUCT, COL_PRODUCT_ID + " = ?", new String[]{id});
             return rowsDeleted > 0;
@@ -433,15 +427,6 @@ public class database extends SQLiteOpenHelper {
         db.delete(TABLE_CHECKOUT, null, null);
         db.close();
     }
-
-
-
-
-
-
-
-
-
 
 
 
