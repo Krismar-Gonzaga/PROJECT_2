@@ -22,7 +22,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class homeactivity extends AppCompatActivity implements OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener {
+public class homeactivity extends AppCompatActivity implements OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics {
 
     // Views
     private TextView cartBadge, PageName;
@@ -68,6 +68,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         // Setup navigation drawer
         setupNavigationDrawer();
 
+
         // Set initial fragment
         getSupportFragmentManager()
                 .beginTransaction()
@@ -78,6 +79,9 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         if (!currentUser.getType().equals("admin")) {
             navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
         }
+
+
+
     }
 
     private void initViews() {
@@ -146,7 +150,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         // Other click listeners
         backhome.setOnClickListener(v -> navigateToFragment(new Home(), "Home"));
         if(currentUser.getType().equals("admin")) {
-            dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(), "Dashboard"));
+            dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(this), "Dashboard"));
         }else{
             Toast.makeText(this,"Admin Access Only!",Toast.LENGTH_SHORT).show();
         }
@@ -270,5 +274,32 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
     @Override
     public void onCartUpdated() {
         OnCart();
+    }
+
+
+
+
+
+
+
+
+
+
+
+    public void analyticsview(){
+        FloatingActionButton fabAnalytics = findViewById(R.id.fabAnalytics);
+        fabAnalytics.setOnClickListener(view -> {
+            // Open AnalyticsFragment
+            AnalyticsFragment analyticsFragment = new AnalyticsFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, analyticsFragment) // Replace with your container ID
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
+    @Override
+    public void viewAnalytics() {
+        analyticsview();
     }
 }

@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#D6F5D6"
-    >
+    android:padding="8dp">
 
     <!-- Dashboard Header Card -->
     <androidx.cardview.widget.CardView
@@ -18,7 +18,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -27,17 +27,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="$45,678.90"
+                android:textColor="#000"
                 android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#000" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total Profit"
-                android:textSize="14sp"
-                android:textColor="#666" />
+                android:textColor="#666"
+                android:textSize="14sp" />
+            <!-- Analytics Floating Action Button -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="0dp"
+                android:src="@drawable/ic_analytics"
+                app:backgroundTint="#4CAF50"
+                app:rippleColor="#388E3C"
+                app:tint="@android:color/white" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -50,13 +61,6 @@
         android:layout_marginBottom="12dp">
 
         <!-- Products Sold -->
-
-        <!-- Spacer -->
-
-        <!-- Products Available -->
-
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +83,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerSold"
                 android:layout_width="match_parent"
@@ -87,6 +90,7 @@
                 android:contentDescription="@string/invalid_password" />
         </LinearLayout>
 
+        <!-- Products Available -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -95,6 +99,6 @@
             android:orientation="vertical"/>
     </LinearLayout>
 
-    <!-- Bottom Navigation Placeholder -->
+
 
 </LinearLayout>

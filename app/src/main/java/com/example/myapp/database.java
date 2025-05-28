@@ -437,4 +437,54 @@ public class database extends SQLiteOpenHelper {
 
 
 
+
+
+
+
+
+
+
+
+
+
+    public Cursor getSoldProductsByDate(String dateCondition) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_SOLD,
+                new String[]{
+                        COL_CHECKOUT_ID,
+                        COL_PRODUCT_ID,
+                        COL_PRODUCT_NAME,
+                        COL_PRICE,
+                        COL_QUANTITY,
+                        COL_TOTAL_PRICE,
+                        "transaction_id",
+                        COL_PRODUCT_IMAGE
+                },
+                "date(" + COL_CHECKOUT_ID + ") >= " + dateCondition,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public Cursor getProductInventoryValue() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_PRODUCT,
+                new String[]{
+                        COL_PRODUCT_ID,
+                        COL_PRODUCT_NAME,
+                        COL_PRICE,
+                        COL_QUANTITY,
+                        "(" + COL_PRICE + " * " + COL_QUANTITY + ") AS inventory_value"
+                },
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+
 }

@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DashboardActivity extends Fragment {
+public class DashboardActivity extends Fragment implements OnviewAnalytics{
 
     dashboardrecycleview adapter;
 
@@ -32,6 +34,12 @@ public class DashboardActivity extends Fragment {
     TextView total_price_sold;
     RecyclerView recyclerView;
     ArrayList<productobject> Product = new ArrayList<>();
+
+    OnviewAnalytics onviewAnalytics;
+    @Override
+    public void viewAnalytics() {
+
+    }
 
     // Grouped data structure for dashboard
     public static class CheckoutGroup {
@@ -44,8 +52,8 @@ public class DashboardActivity extends Fragment {
     }
     ArrayList<CheckoutGroup> checkoutGroups = new ArrayList<>();
 
-    public DashboardActivity(){
-
+    public DashboardActivity(OnviewAnalytics onviewAnalytics){
+        this.onviewAnalytics = onviewAnalytics;
     }
 
     @Override
@@ -70,6 +78,15 @@ public class DashboardActivity extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new dashboardrecycleview(checkoutGroups,getContext());
         recyclerView.setAdapter(adapter);
+        FloatingActionButton fabAnalytics = view.findViewById(R.id.fabAnalytics);
+
+
+        fabAnalytics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onviewAnalytics.viewAnalytics();
+            }
+        });
 
         return view;
     }
