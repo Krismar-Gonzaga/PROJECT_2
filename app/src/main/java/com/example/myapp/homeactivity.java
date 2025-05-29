@@ -11,7 +11,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +29,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class homeactivity extends AppCompatActivity implements OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics {
+public class homeactivity extends AppCompatActivity implements OnlowStockchecker, OntotalCartUpdated, OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics {
 
     // Views
     private TextView cartBadge, PageName;
@@ -70,6 +72,10 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         // Set initial FAB visibility
         updateFabVisibility();
 
+        OnCart();
+
+        checkLowStock();
+
         // Setup navigation drawer
         setupNavigationDrawer();
 
@@ -77,7 +83,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         // Set initial fragment
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new Home())
+                .replace(R.id.fragment_container, new Home(this))
                 .commit();
 
         // Hide 'Logs' menu item for non-admin users
@@ -147,6 +153,13 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
             }
             else if (id == R.id.nav_logout){
                 navigateToLogout();
+            }else if (id == R.id.action_low_stock){
+
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new LowStockFragment())
+                            .addToBackStack(null)
+                            .commit();
+
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -155,7 +168,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         });
 
         // Other click listeners
-        backhome.setOnClickListener(v -> navigateToFragment(new Home(), "Home"));
+        backhome.setOnClickListener(v -> navigateToFragment(new Home(this), "Home"));
 
         if(currentUser.getType().equals("admin")) {
             dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(this), "Dashboard"));
@@ -163,7 +176,7 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
             Toast.makeText(this,"Admin Access Only!",Toast.LENGTH_SHORT).show();
         }
         checkoutbtn.setOnClickListener(v -> {
-            navigateToFragment(new checkout_activity(this), "Checkout");
+            navigateToFragment(new checkout_activity(this, this,this), "Checkout");
             floatingActionButton.hide();
         });
 
@@ -256,9 +269,13 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
         return total_product;
     }
 
-    public void OnCart(){
-        if(getTotalOncartProduct() != 0) {
-            cartBadge.setText(getTotalOncartProduct());
+    public void OnCart() {
+        int totalProducts = getTotalOncartProduct();
+        if(totalProducts > 0) {
+            cartBadge.setVisibility(View.VISIBLE);
+            cartBadge.setText(String.valueOf(totalProducts));
+        } else {
+            cartBadge.setVisibility(View.GONE);
         }
     }
 
@@ -276,11 +293,11 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
 
     @Override
     public void BackHome() {
-        navigateToFragment(new Home(), "Home");
+        navigateToFragment(new Home(this), "Home");
     }
 
     @Override
-    public void onCartUpdated() {
+    public void OntotalCartUpdate() {
         OnCart();
     }
 
@@ -309,5 +326,47 @@ public class homeactivity extends AppCompatActivity implements OnEditProductClic
     @Override
     public void viewAnalytics() {
         analyticsview();
+    }
+
+    @Override
+    public void onCartUpdated() {
+
+
+    }
+
+
+
+
+
+
+
+    private void checkLowStock() {
+        database db = new database(this);
+        if (db.hasLowStockItems()) {
+            int count = db.getLowStockCount();
+            NotificationHelper.showLowStockNotification(this, count);
+
+            // You might want to add a badge or indicator in your UI
+            // to show there are low stock items
+        }
+        db.close();
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_low_stock) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new LowStockFragment())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void checklowstock() {
+        checkLowStock();
     }
 }

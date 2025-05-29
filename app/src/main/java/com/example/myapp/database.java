@@ -39,6 +39,9 @@ public class database extends SQLiteOpenHelper {
     public static final String COL_TOTAL_PRICE = "total_price";
     private static final String COL_PRODUCT_IMAGE = "product_image";
 
+
+    public static final int LOW_STOCK_THRESHOLD = 5;
+
     public database(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
@@ -484,5 +487,47 @@ public class database extends SQLiteOpenHelper {
         );
     }
 
+
+
+
+
+
+    // Add this method to check for low stock items
+    public Cursor getLowStockProducts() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_PRODUCT,
+                new String[]{COL_PRODUCT_ID, COL_PRODUCT_NAME, COL_QUANTITY, COL_PRICE},
+                COL_QUANTITY + " <= ?",
+                new String[]{String.valueOf(LOW_STOCK_THRESHOLD)},
+                null, null, COL_QUANTITY + " ASC");
+    }
+
+    // Add this method to check if any products are low in stock
+    public boolean hasLowStockItems() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_PRODUCT,
+                new String[]{COL_PRODUCT_ID},
+                COL_QUANTITY + " <= ?",
+                new String[]{String.valueOf(LOW_STOCK_THRESHOLD)},
+                null, null, null);
+
+        boolean hasLowStock = cursor.getCount() > 0;
+        cursor.close();
+        return hasLowStock;
+    }
+
+    // Add this method to get the count of low stock items
+    public int getLowStockCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_PRODUCT,
+                new String[]{COL_PRODUCT_ID},
+                COL_QUANTITY + " <= ?",
+                new String[]{String.valueOf(LOW_STOCK_THRESHOLD)},
+                null, null, null);
+
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
 
 }

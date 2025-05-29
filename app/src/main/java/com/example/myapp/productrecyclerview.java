@@ -17,15 +17,15 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class productrecyclerview extends RecyclerView.Adapter<productrecyclerview.ViewHolder> {
+public class productrecyclerview extends RecyclerView.Adapter<productrecyclerview.ViewHolder> implements OntotalCartUpdated{
 
     private List<productobject> productObjects;
     private Context context;
-    private OnCartUpdateListener onCartUpdateListener;
+    private OntotalCartUpdated onCartUpdateListener;
     private database checkoutdb;
 
     public productrecyclerview(ArrayList<productobject> productObjects, Context context,
-                               OnCartUpdateListener onCartUpdateListener) {
+                               OntotalCartUpdated onCartUpdateListener) {
         this.productObjects = productObjects != null ? productObjects : new ArrayList<>();
         this.context = context;
         this.onCartUpdateListener = onCartUpdateListener;
@@ -100,7 +100,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
             if (isAdded) {
                 Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
                 if (onCartUpdateListener != null) {
-                    onCartUpdateListener.onCartUpdated();
+                    onCartUpdateListener.OntotalCartUpdate();
                 }
             } else {
                 Toast.makeText(context, "Product already in cart!", Toast.LENGTH_SHORT).show();
@@ -111,6 +111,11 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
     @Override
     public int getItemCount() {
         return productObjects.size();
+    }
+
+    @Override
+    public void OntotalCartUpdate() {
+
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

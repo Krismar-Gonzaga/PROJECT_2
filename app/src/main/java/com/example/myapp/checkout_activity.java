@@ -30,9 +30,12 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     RecyclerView recyclerView;
     checkoutrecyclerview adapter;
     Button btn_checkout;
-
-    public checkout_activity(OnSuccessfulCheckoutListener Backhome) {
+    OntotalCartUpdated Oncartupdate;
+    OnlowStockchecker checklowstock;
+    public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock) {
         this.OnSuccessfulCheckout = Backhome;
+        this.Oncartupdate = Oncartupdate;
+        this.checklowstock = checklowstock;
         // Required empty public constructor
     }
 
@@ -49,7 +52,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         refreshCartData();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new checkoutrecyclerview(Cart_Product, getContext(), this);
+        adapter = new checkoutrecyclerview(Cart_Product, getContext(), this,Oncartupdate);
         recyclerView.setAdapter(adapter);
         updateTotalBill();
 
@@ -129,6 +132,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
             updateTotalBill();
             Toast.makeText(getContext(), "Checkout processed successfully!", Toast.LENGTH_SHORT).show();
             OnSuccessfulCheckout.BackHome();
+            Oncartupdate.OntotalCartUpdate();
+            checklowstock.checklowstock();
         } else {
             Toast.makeText(getContext(), "No items processed!", Toast.LENGTH_SHORT).show();
         }

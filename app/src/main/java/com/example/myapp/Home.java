@@ -20,17 +20,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class Home extends Fragment implements OnCartUpdateListener, productrecyclerview.OnCartUpdateListener {
+public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateListener, productrecyclerview.OnCartUpdateListener {
     RecyclerView recyclerView;
     productrecyclerview adapter;
     ArrayList<productobject> Product = new ArrayList<>();
 
     database db;
 
+    OntotalCartUpdated Oncartupdate;
+
 
     homeactivity homeactivity = new homeactivity();
-    public Home() {
+    public Home(OntotalCartUpdated Oncartupdate) {
         // Required empty public constructor
+        this.Oncartupdate = Oncartupdate;
     }
 
 
@@ -53,7 +56,7 @@ public class Home extends Fragment implements OnCartUpdateListener, productrecyc
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()  ));
-        adapter = new productrecyclerview(Product, getContext(), this);
+        adapter = new productrecyclerview(Product, getContext(), Oncartupdate);
         recyclerView.setAdapter(adapter);
 
 
@@ -97,4 +100,8 @@ public class Home extends Fragment implements OnCartUpdateListener, productrecyc
     }
 
 
+    @Override
+    public void OntotalCartUpdate() {
+
+    }
 }

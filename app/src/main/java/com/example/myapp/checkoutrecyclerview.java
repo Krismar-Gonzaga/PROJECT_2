@@ -4,15 +4,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.widget.Toast;
@@ -27,11 +31,14 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
 
     OnCartUpdateListener cartUpdateListener;
 
-    public checkoutrecyclerview( ArrayList<productobject> cart_product,Context context, OnCartUpdateListener listener) {
+    OntotalCartUpdated Oncartupdate;
+
+    public checkoutrecyclerview( ArrayList<productobject> cart_product,Context context, OnCartUpdateListener listener, OntotalCartUpdated Oncartupdate) {
         this.cart_product = cart_product;
         this.context = context;
         this.checkoutdb = new database(context);
         this.cartUpdateListener = listener;
+        this.Oncartupdate = Oncartupdate;
 
     }
 
@@ -58,9 +65,15 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
         } else {
             holder.productImage.setVisibility(View.GONE);
         }
-//        currentQuantity = checkoutdb.
-//        checkoutdb = new database(context);
-//        productobject currentproduct = getcurrentProduct(cart_product.get(position)); // Fixed missing parenthesis
+
+        // Add click listener for quantity
+        holder.total_quantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuantityEditDialog(position, holder);
+            }
+        });
+
 
         holder.increaceItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,12 +160,71 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
             notifyItemRangeChanged(position, cart_product.size());
 
             // 4. Update total
-            cartUpdateListener.onCartUpdated();
+            Oncartupdate.OntotalCartUpdate();
 
             Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Failed to delete item", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    private void showQuantityEditDialog(int position, ViewHolder holder) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Edit Quantity");
+
+        final EditText input = new EditText(context);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setText(cart_product.get(position).getQuantity());
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newQuantityStr = input.getText().toString();
+                if (!newQuantityStr.isEmpty()) {
+                    int newQuantity = Integer.parseInt(newQuantityStr);
+                    productobject currentProduct = getcurrentProduct(cart_product.get(position));
+
+                    if (currentProduct == null) {
+                        Toast.makeText(context, "Product not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    int maxQuantity = Integer.parseInt(currentProduct.getQuantity());
+                    if (newQuantity > maxQuantity) {
+                        Toast.makeText(context, "Quantity exceeds available stock", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (newQuantity > 0) {
+                        productobject product = cart_product.get(position);
+                        float pricePerUnit = Float.parseFloat(product.getPrice());
+                        float newTotal = pricePerUnit * newQuantity;
+
+                        product.setQuantity(String.valueOf(newQuantity));
+                        product.setTotal_price(String.valueOf(newTotal));
+
+                        holder.total_quantity.setText(String.valueOf(newQuantity));
+                        holder.total_price.setText("₱ " + newTotal);
+
+                        checkoutdb.updatecheckout(product.getId(), String.valueOf(newQuantity), String.valueOf(newTotal));
+                        cartUpdateListener.onCartUpdated();
+                    } else {
+                        Toast.makeText(context, "Quantity must be greater than 0", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
 
