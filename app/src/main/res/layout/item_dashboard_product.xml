@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,10 +37,20 @@
             android:id="@+id/sold_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:text="Total Quantity: 0"
             android:textColor="#444"
             android:textSize="14sp"
-            android:layout_marginTop="2dp"/>
+            android:layout_marginTop="10dp"/>
+
+        <Button
+            android:id="@+id/delete_sold_product"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:layout_marginLeft="200dp"
+            android:background="@drawable/ic_delete_24"
+            />
 
         <TextView
             android:id="@+id/dash_total_Price_sold"
@@ -47,8 +58,9 @@
             android:layout_height="wrap_content"
             android:text="Total Price: 0"
             android:textColor="#444"
-            android:textSize="14sp"
-            android:layout_marginTop="2dp"/>
+            android:textSize="14sp">
+
+        </TextView>
     </LinearLayout>
 
 </LinearLayout>

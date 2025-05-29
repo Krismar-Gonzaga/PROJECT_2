@@ -1,12 +1,15 @@
 package com.example.myapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,12 +23,14 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     private static final int VIEW_TYPE_PRODUCT = 1;
 
     private List<DashboardActivity.CheckoutGroup> checkoutGroups;
-    private List<Object> displayItems = new ArrayList<>(); // Mix of String (transactionId) and productobject
+    private List<Object> displayItems = new ArrayList<>();
     Context context;
+    private database db;
 
     public dashboardrecycleview(List<DashboardActivity.CheckoutGroup> checkoutGroups, Context context) {
         this.checkoutGroups = checkoutGroups;
         this.context = context;
+        this.db = new database(context);
         buildDisplayItems();
     }
 
@@ -59,7 +64,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (getItemViewType(position) == VIEW_TYPE_HEADER) {
             String transactionId = (String) displayItems.get(position);
             ((HeaderViewHolder) holder).headerText.setText("Checkout: " + transactionId);
@@ -67,9 +72,35 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
             productobject product = (productobject) displayItems.get(position);
             ProductViewHolder productHolder = (ProductViewHolder) holder;
             productHolder.quantity.setText("Total Quantity: " + product.getQuantity());
-            String totalprice = product.getTotal_price();
-            productHolder.total_price.setText("Total Price: " + totalprice);
+            productHolder.total_price.setText("Total Price: " + product.getTotal_price());
             productHolder.productname.setText(product.getName());
+
+            productHolder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Delete from database first
+                    boolean deleted = db.delete_sold_product(product.getId());
+                    if (deleted) {
+                        // Find the header position for this product
+                        int headerPosition = findHeaderPosition(position);
+
+                        // Remove the product from displayItems
+                        displayItems.remove(position);
+
+                        // Check if this was the last product under this header
+                        if (isHeaderEmpty(headerPosition)) {
+                            // Remove the header too
+                            displayItems.remove(headerPosition);
+                        }
+
+                        notifyDataSetChanged();
+                        Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Failed to Delete Sold Product!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
             Bitmap image = product.getImage();
             if (image != null) {
                 productHolder.productImage.setImageBitmap(image);
@@ -78,6 +109,25 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                 productHolder.productImage.setVisibility(View.GONE);
             }
         }
+    }
+
+    // Helper method to find the header position for a given product position
+    private int findHeaderPosition(int productPosition) {
+        for (int i = productPosition; i >= 0; i--) {
+            if (getItemViewType(i) == VIEW_TYPE_HEADER) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Helper method to check if a header has no products under it
+    private boolean isHeaderEmpty(int headerPosition) {
+        // If header is the last item, it's empty
+        if (headerPosition == displayItems.size() - 1) return true;
+
+        // Check if the next item is another header (meaning no products under this one)
+        return getItemViewType(headerPosition + 1) == VIEW_TYPE_HEADER;
     }
 
     @Override
@@ -96,8 +146,10 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productname, quantity, total_price;
         ImageView productImage;
+        Button delete;
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
+            delete = itemView.findViewById(R.id.delete_sold_product);
             productImage = itemView.findViewById(R.id.dash_productImage);
             productname = itemView.findViewById(R.id.dash_productName);
             total_price = itemView.findViewById(R.id.dash_total_Price_sold);

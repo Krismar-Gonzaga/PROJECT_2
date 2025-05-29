@@ -355,6 +355,19 @@ public class database extends SQLiteOpenHelper {
         }
     }
 
+
+    public boolean delete_sold_product(String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            int rowsDeleted = db.delete(TABLE_SOLD,
+                    COL_CHECKOUT_ID + " = ?",
+                    new String[]{id});
+            return rowsDeleted > 0;
+        } finally {
+            db.close();
+        }
+    }
+
     public boolean deleteProduct(String id) {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
