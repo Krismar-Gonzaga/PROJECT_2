@@ -122,11 +122,12 @@ public class DashboardActivity extends Fragment implements OnviewAnalytics{
                 String total_price = cursor.getString(4);
                 String transactionId = cursor.getString(5);
                 byte[] imageBytes = cursor.getBlob(6);
+                String date = cursor.getString(7);
                 Bitmap productImage = null;
                 if (imageBytes != null) {
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
-                productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage);
+                productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage, date);
                 if (!groupMap.containsKey(transactionId)) {
                     groupMap.put(transactionId, new ArrayList<>());
                 }

@@ -14,11 +14,11 @@ public class productobject implements Parcelable {
     private String price;
     private String total_price;
     private String quantity;
-    private String Overquantity;
+    private String Overquantity , date;
 
     private Bitmap image;
 
-    public productobject(String id, String name, String price, String total_price, String quantity, String overQuantity, Bitmap image) {
+    public productobject(String id, String name, String price, String total_price, String quantity, String overQuantity, Bitmap image, String date) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -26,9 +26,21 @@ public class productobject implements Parcelable {
         this.quantity = quantity;
         this.Overquantity = overQuantity;
         this.image = image;
+        this.date = date;
     }
 
+
     // Add getter and setter for image
+
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     public Bitmap getImage() {
         return image;
     }

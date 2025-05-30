@@ -265,7 +265,8 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                         cursor.getString(4),  // quantity
                         cursor.getString(4),  // quantity
                         cursor.getString(5),  // overquantity
-                        null
+                        null,
+                        ""
                 );
             }
         }

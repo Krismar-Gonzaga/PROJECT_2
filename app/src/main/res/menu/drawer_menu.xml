@@ -12,14 +12,15 @@
         android:id="@+id/nav_logs"
         android:icon="@android:drawable/ic_menu_info_details"
         android:title="Logs" />
-    <item
-        android:id="@+id/nav_logout"
 
-        android:title="Log Out" />
     <!-- Add this to your menu XML file -->
     <item
         android:id="@+id/action_low_stock"
         android:icon="@drawable/ic_warning"
-        android:title="Low Stock"
+        android:title="Notification"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/nav_logout"
+
+        android:title="Log Out" />
 </menu>

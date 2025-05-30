@@ -79,7 +79,7 @@ public class Inventory extends Fragment implements OnEditProductClickListener {
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
 
-                productobject product = new productobject(id, name, price, quantity,quantity, overquantity, productImage);
+                productobject product = new productobject(id, name, price, quantity,quantity, overquantity, productImage, "");
                 Product.add(product);
             }
         }

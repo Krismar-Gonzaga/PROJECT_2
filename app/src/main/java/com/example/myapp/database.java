@@ -10,6 +10,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class database extends SQLiteOpenHelper {
     // Database and table names
     public static final String DATABASE_NAME = "BODEGA";
@@ -41,6 +45,7 @@ public class database extends SQLiteOpenHelper {
 
 
     public static final int LOW_STOCK_THRESHOLD = 5;
+    public static final String COL_DATE = "Date";
 
     public database(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -104,7 +109,8 @@ public class database extends SQLiteOpenHelper {
                 + COL_QUANTITY + " INTEGER NOT NULL,"
                 + COL_TOTAL_PRICE + " FLOAT NOT NULL,"
                 + "transaction_id TEXT NOT NULL,"
-                + COL_PRODUCT_IMAGE + " BLOB "
+                + COL_PRODUCT_IMAGE + " BLOB,"
+                + COL_DATE + " TEXT "
                 + ")";
         db.execSQL(CREATE_SOLD_TABLE);
     }
@@ -281,6 +287,8 @@ public class database extends SQLiteOpenHelper {
             values.put(COL_QUANTITY, quantity);
             values.put(COL_TOTAL_PRICE, totalPrice);
             values.put("transaction_id", transactionId);
+            String date = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(new Date());
+            values.put(COL_DATE, date);
 
             // Add image if provided
             if (productImage != null) {
@@ -316,7 +324,8 @@ public class database extends SQLiteOpenHelper {
                             COL_QUANTITY,       // Quantity sold
                             COL_TOTAL_PRICE,    // Total price (price * quantity)
                             "transaction_id",  // Transaction ID
-                            COL_PRODUCT_IMAGE   // Product image at time of sale
+                            COL_PRODUCT_IMAGE,   // Product image at time of sale
+                            COL_DATE
                     },
                     null,       // WHERE clause
                     null,       // WHERE args

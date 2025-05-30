@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@drawable/product_corner"
+    android:background="@drawable/rounded_dialog_bg"
     android:padding="8dp"
     android:gravity="center_vertical">
 
@@ -18,7 +18,7 @@
         android:scaleType="centerCrop"
         android:layout_marginEnd="12dp"/>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -34,6 +34,13 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="130dp"
+            android:text="Date: May 30, 2025" />
+
+        <TextView
             android:id="@+id/sold_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,16 +48,20 @@
             android:text="Total Quantity: 0"
             android:textColor="#444"
             android:textSize="14sp"
-            android:layout_marginTop="10dp"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
 
         <Button
             android:id="@+id/delete_sold_product"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:clickable="true"
-            android:layout_marginLeft="200dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_delete_24"
-            />
+            android:clickable="true"
+            app:layout_constraintStart_toEndOf="@+id/sold_quantity"
+            app:layout_constraintTop_toBottomOf="@+id/date" />
 
         <TextView
             android:id="@+id/dash_total_Price_sold"
@@ -58,9 +69,11 @@
             android:layout_height="wrap_content"
             android:text="Total Price: 0"
             android:textColor="#444"
-            android:textSize="14sp">
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@+id/sold_quantity"
+            tools:layout_editor_absoluteX="0dp">
 
         </TextView>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

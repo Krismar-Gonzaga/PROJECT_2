@@ -32,11 +32,12 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     Button btn_checkout;
     OntotalCartUpdated Oncartupdate;
     OnlowStockchecker checklowstock;
+    private String storeName;
+
     public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock) {
         this.OnSuccessfulCheckout = Backhome;
         this.Oncartupdate = Oncartupdate;
         this.checklowstock = checklowstock;
-        // Required empty public constructor
     }
 
     @Override
@@ -50,9 +51,10 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
 
         checkoutdb = new database(getContext());
         refreshCartData();
+        loadStoreName();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new checkoutrecyclerview(Cart_Product, getContext(), this,Oncartupdate);
+        adapter = new checkoutrecyclerview(Cart_Product, getContext(), this, Oncartupdate);
         recyclerView.setAdapter(adapter);
         updateTotalBill();
 
@@ -66,6 +68,14 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         return view;
     }
 
+    private void loadStoreName() {
+        Cursor cursor = checkoutdb.getUsers();
+        if (cursor.moveToFirst()) {
+            storeName = cursor.getString(cursor.getColumnIndexOrThrow(database.COL_STORE_NAME));
+        }
+        cursor.close();
+    }
+
     private void refreshCartData() {
         Cart_Product.clear();
         getcheckout();
@@ -73,17 +83,15 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
 
     private void processCheckout() {
         boolean isProcessed = false;
-        // Generate a transaction ID using current date and time
         String transactionId = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        // Get current inventory and cart items
         ArrayList<productobject> inventoryItems = get_Product();
         ArrayList<productobject> cartItems = get_Checkout_item();
+        float totalAmount = calculateTotal();
 
         for (productobject cartItem : cartItems) {
             for (productobject inventoryItem : inventoryItems) {
                 if (cartItem.getId().equals(inventoryItem.getId())) {
                     try {
-                        // Calculate new quantity
                         int currentQty = Integer.parseInt(inventoryItem.getQuantity());
                         int cartQty = Integer.parseInt(cartItem.getQuantity());
                         int newQty = currentQty - cartQty;
@@ -94,7 +102,6 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         }
 
                         if (newQty >= 0) {
-                            // Update inventory item with new quantity
                             inventoryItem.setQuantity(String.valueOf(newQty));
                             checkoutdb.update_checkout_Product(inventoryItem);
                             checkoutdb.add_sold_product(
@@ -104,7 +111,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                                     cartItem.getQuantity(),
                                     cartItem.getTotal_price(),
                                     imageBytes,
-                                    transactionId // Pass transactionId here
+                                    transactionId
                             );
                             isProcessed = true;
                         } else {
@@ -124,20 +131,45 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         }
 
         if (isProcessed) {
+            // Show receipt
+            showReceipt(cartItems, transactionId, totalAmount);
+
             // Clear the cart after successful checkout
             checkoutdb.clearCheckoutTable();
             Cart_Product.clear();
             refreshCartData();
             adapter.notifyDataSetChanged();
             updateTotalBill();
-            Toast.makeText(getContext(), "Checkout processed successfully!", Toast.LENGTH_SHORT).show();
-            OnSuccessfulCheckout.BackHome();
             Oncartupdate.OntotalCartUpdate();
             checklowstock.checklowstock();
         } else {
             Toast.makeText(getContext(), "No items processed!", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void showReceipt(ArrayList<productobject> soldItems, String transactionId, float totalAmount) {
+        ReceiptFragment receiptFragment = new ReceiptFragment(
+                soldItems,
+                transactionId,
+                totalAmount,
+                storeName,
+                getContext()
+        );
+        receiptFragment.show(getParentFragmentManager(), "receipt_dialog");
+    }
+
+    private float calculateTotal() {
+        float total = 0;
+        for (productobject product : Cart_Product) {
+            try {
+                total += Float.parseFloat(product.getTotal_price());
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid price format for " + product.getName(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        return total;
+    }
+
 
     public ArrayList<productobject> get_Product() {
         Cursor cursor = checkoutdb.getProduct();
@@ -151,7 +183,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         cursor.getString(4),
                         cursor.getString(4),  // quantity
                         cursor.getString(3),
-                        null// total_price (fixed from 3 to 5)
+                        null, // total_price (fixed from 3 to 5)
+                        ""
                 ));
             }
         }
@@ -177,7 +210,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         cursor.getString(5),
                         cursor.getString(4),
                         cursor.getString(4),
-                        productImage
+                        productImage,
+                        ""
                 ));
             }
         }
@@ -205,7 +239,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
 
-                productobject product = new productobject(id, name, price, total_price,quantity, quantity, productImage);
+                productobject product = new productobject(id, name, price, total_price,quantity, quantity, productImage, "");
                 Cart_Product.add(product);
             }
         }

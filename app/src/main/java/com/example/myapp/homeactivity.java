@@ -155,7 +155,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             else if (id == R.id.nav_logout){
                 navigateToLogout();
             }else if (id == R.id.action_low_stock){
-
+                    PageName.setText("Notification");
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, new LowStockFragment())
                             .addToBackStack(null)

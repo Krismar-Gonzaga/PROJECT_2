@@ -10,6 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowStockViewHolder> {
     private Context context;
     private Cursor cursor;
@@ -40,6 +44,7 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
         holder.productName.setText(name);
         holder.productQuantity.setText(String.format("Quantity: %d", quantity));
         holder.productPrice.setText(String.format("Price: $%.2f", price));
+        holder.date.setText("Date: " + new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault()).format(new Date()));
     }
 
     @Override
@@ -58,10 +63,11 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
     }
 
     public static class LowStockViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productQuantity, productPrice;
+        TextView productName, productQuantity, productPrice, date;
 
         public LowStockViewHolder(@NonNull View itemView) {
             super(itemView);
+            date = itemView.findViewById(R.id.nofication_date);
             productName = itemView.findViewById(R.id.low_stock_product_name);
             productQuantity = itemView.findViewById(R.id.low_stock_quantity);
             productPrice = itemView.findViewById(R.id.low_stock_price);
