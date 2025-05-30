@@ -143,6 +143,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 }
             } else if (id == R.id.nav_user) {
                 navigateToProfile();
+
             }
             else if (id == R.id.nav_logs) {
                 if(currentUser.getType().equals("admin")) {
