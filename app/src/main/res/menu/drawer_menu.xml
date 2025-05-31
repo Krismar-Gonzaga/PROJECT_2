@@ -16,7 +16,7 @@
     <!-- Add this to your menu XML file -->
     <item
         android:id="@+id/action_low_stock"
-        android:icon="@drawable/ic_warning"
+        android:icon="@drawable/ic_notification_bell"
         android:title="Notification"
         app:showAsAction="ifRoom"/>
     <item

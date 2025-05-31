@@ -34,6 +34,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     OnlowStockchecker checklowstock;
     private String storeName;
 
+
     public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock) {
         this.OnSuccessfulCheckout = Backhome;
         this.Oncartupdate = Oncartupdate;
@@ -153,7 +154,9 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                 transactionId,
                 totalAmount,
                 storeName,
-                getContext()
+                getContext(),
+                this.OnSuccessfulCheckout
+
         );
         receiptFragment.show(getParentFragmentManager(), "receipt_dialog");
     }

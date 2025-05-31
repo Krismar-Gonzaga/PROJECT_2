@@ -26,13 +26,16 @@ public class ReceiptFragment extends DialogFragment {
     private final String storeName;
     private final Context context;
 
+    private final OnSuccessfulCheckoutListener backhome;
+
     public ReceiptFragment(ArrayList<productobject> soldItems, String transactionId,
-                           float totalAmount, String storeName, Context context) {
+                           float totalAmount, String storeName, Context context, OnSuccessfulCheckoutListener backhome) {
         this.soldItems = soldItems;
         this.transactionId = transactionId;
         this.totalAmount = totalAmount;
         this.storeName = storeName;
         this.context = context;
+        this.backhome = backhome;
     }
 
     @NonNull
@@ -61,7 +64,15 @@ public class ReceiptFragment extends DialogFragment {
         itemsList.setLayoutManager(new LinearLayoutManager(context));
         itemsList.setAdapter(adapter);
 
-        closeButton.setOnClickListener(v -> dismiss());
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                backhome.BackHome();
+            }
+        }
+
+        );
 
         builder.setView(view);
         return builder.create();

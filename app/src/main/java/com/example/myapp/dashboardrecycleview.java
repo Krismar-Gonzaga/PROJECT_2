@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
-public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnTotalProfitUpdate {
 
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_PRODUCT = 1;
@@ -34,10 +34,13 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
 
     productobject product;
 
-    public dashboardrecycleview(List<DashboardActivity.CheckoutGroup> checkoutGroups, Context context) {
+    private OnTotalProfitUpdate TotalProfitUpdate;
+
+    public dashboardrecycleview(List<DashboardActivity.CheckoutGroup> checkoutGroups, Context context, OnTotalProfitUpdate OnTotalProfitUpdate) {
         this.checkoutGroups = checkoutGroups;
         this.context = context;
         this.db = new database(context);
+        this.TotalProfitUpdate = OnTotalProfitUpdate;
         buildDisplayItems();
     }
 
@@ -93,6 +96,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                             // Delete from database first
                             boolean delete = db.delete_sold_product(currentProduct.getId());
                             if (delete) {
+                                TotalProfitUpdate.Update_total_profit();
                                 // Find the header position for this product
                                 int headerPosition = findHeaderPosition(position);
 
@@ -107,6 +111,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
 
                                 notifyDataSetChanged();
                                 Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
+
                             } else {
                                 Toast.makeText(context, "Failed to Delete Sold Product!", Toast.LENGTH_SHORT).show();
                             }
@@ -147,6 +152,11 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemCount() {
         return displayItems.size();
+    }
+
+    @Override
+    public void Update_total_profit() {
+
     }
 
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {

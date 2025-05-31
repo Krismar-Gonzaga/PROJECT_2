@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DashboardActivity extends Fragment implements OnviewAnalytics{
+public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, OnviewAnalytics{
 
     dashboardrecycleview adapter;
 
@@ -36,10 +36,13 @@ public class DashboardActivity extends Fragment implements OnviewAnalytics{
     ArrayList<productobject> Product = new ArrayList<>();
 
     OnviewAnalytics onviewAnalytics;
+    String total_sold;
     @Override
     public void viewAnalytics() {
 
     }
+
+
 
     // Grouped data structure for dashboard
     public static class CheckoutGroup {
@@ -73,10 +76,10 @@ public class DashboardActivity extends Fragment implements OnviewAnalytics{
 
         total_price_sold = view.findViewById(R.id.Sales_Profit);
         recyclerView = view.findViewById(R.id.recyclerSold);
-        String total_sold = "₱ " + String.valueOf(getTotalProfit());
+        total_sold = "₱ " + String.valueOf(getTotalProfit());
         total_price_sold.setText(total_sold);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new dashboardrecycleview(checkoutGroups,getContext());
+        adapter = new dashboardrecycleview(checkoutGroups,getContext(),this);
         recyclerView.setAdapter(adapter);
         FloatingActionButton fabAnalytics = view.findViewById(R.id.fabAnalytics);
 
@@ -146,5 +149,15 @@ public class DashboardActivity extends Fragment implements OnviewAnalytics{
             });
         }
         cursor.close();
+    }
+
+    public void updatetotal(){
+        total_price_sold.setText("₱ " + String.valueOf(getTotalProfit()));
+    }
+
+
+    @Override
+    public void Update_total_profit() {
+        updatetotal();
     }
 }
