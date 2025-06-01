@@ -89,6 +89,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         // Hide 'Logs' menu item for non-admin users
         if (!currentUser.getType().equals("admin")) {
             navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
+            navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(false);
+        }
+        if (currentUser.getType().equals("user")){
+            dashboard.setVisibility(INVISIBLE);
         }
 
 
@@ -149,6 +153,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
+        if(currentUser.getType().equals("user")) {
+
+        }
 
         // Navigation item selection
         navigationView.setNavigationItemSelectedListener(item -> {
