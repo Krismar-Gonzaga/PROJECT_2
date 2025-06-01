@@ -19,7 +19,7 @@
         android:icon="@drawable/ic_notification_bell"
         android:title="Notification"
         app:showAsAction="ifRoom"
-        app:actionLayout="@layout/menu_item_notificati"/>
+        app:actionLayout="@layout/menu_item_notification"/>
     <item
         android:id="@+id/nav_logout"
 
