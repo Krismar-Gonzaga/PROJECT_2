@@ -158,6 +158,14 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
     @Override
     public void Update_total_profit() {
+        // Clear and reload the grouped products
+        checkoutGroups.clear();
+        getGroupedProducts();
+        
+        // Update the adapter with new data
+        adapter.updateData(checkoutGroups);
+        
+        // Update the total profit display
         updatetotal();
     }
 }

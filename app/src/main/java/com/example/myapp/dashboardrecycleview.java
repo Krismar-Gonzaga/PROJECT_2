@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
-public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnTotalProfitUpdate {
+public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_PRODUCT = 1;
@@ -42,6 +42,12 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
         this.db = new database(context);
         this.TotalProfitUpdate = OnTotalProfitUpdate;
         buildDisplayItems();
+    }
+
+    public void updateData(List<DashboardActivity.CheckoutGroup> newCheckoutGroups) {
+        this.checkoutGroups = newCheckoutGroups;
+        buildDisplayItems();
+        notifyDataSetChanged();
     }
 
     private void buildDisplayItems() {
@@ -96,22 +102,11 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                             // Delete from database first
                             boolean delete = db.delete_sold_product(currentProduct.getId());
                             if (delete) {
-                                TotalProfitUpdate.Update_total_profit();
-                                // Find the header position for this product
-                                int headerPosition = findHeaderPosition(position);
-
-                                // Remove the product from displayItems
-                                displayItems.remove(position);
-
-                                // Check if this was the last product under this header
-                                if (isHeaderEmpty(headerPosition)) {
-                                    // Remove the header too
-                                    displayItems.remove(headerPosition);
+                                // Update total profit through the interface
+                                if (TotalProfitUpdate != null) {
+                                    TotalProfitUpdate.Update_total_profit();
                                 }
-
-                                notifyDataSetChanged();
                                 Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
-
                             } else {
                                 Toast.makeText(context, "Failed to Delete Sold Product!", Toast.LENGTH_SHORT).show();
                             }
@@ -153,11 +148,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     public int getItemCount() {
         return displayItems.size();
     }
-
-    @Override
-    public void Update_total_profit() {
-
-    }
+    
 
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView headerText;

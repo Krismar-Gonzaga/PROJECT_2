@@ -117,7 +117,28 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 drawerLayout,
                 R.string.open,
                 R.string.close);
-        drawerLayout.addDrawerListener(drawerToggle);
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                drawerToggle.onDrawerSlide(drawerView, slideOffset);
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                drawerToggle.onDrawerOpened(drawerView);
+                checkLowStock(); // Update notification badge when drawer is opened
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                drawerToggle.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                drawerToggle.onDrawerStateChanged(newState);
+            }
+        });
         drawerToggle.syncState();
 
         // Handle menu icon click
@@ -259,6 +280,9 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 .replace(R.id.fragment_container, edit_Activity.newInstance(product))
                 .addToBackStack("edit_product")
                 .commit();
+                
+        // Update low stock notification after editing
+        checkLowStock();
     }
 
     public int getTotalOncartProduct(){
@@ -343,12 +367,22 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
     private void checkLowStock() {
         database db = new database(this);
-        if (db.hasLowStockItems()) {
-            int count = db.getLowStockCount();
-            NotificationHelper.showLowStockNotification(this, count);
-
-            // You might want to add a badge or indicator in your UI
-            // to show there are low stock items
+        int count = db.getLowStockCount();
+        
+        // Update notification badge in drawer menu
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.action_low_stock);
+        View actionView = menuItem.getActionView();
+        if (actionView != null) {
+            TextView badge = actionView.findViewById(R.id.notification_badge);
+            if (badge != null) {
+                if (count > 0) {
+                    badge.setVisibility(View.VISIBLE);
+                    badge.setText(String.valueOf(count));
+                    NotificationHelper.showLowStockNotification(this, count);
+                } else {
+                    badge.setVisibility(View.GONE);
+                }
+            }
         }
         db.close();
     }
