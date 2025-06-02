@@ -23,7 +23,7 @@
         
         <item
             android:id="@+id/nav_logs"
-            android:icon="@drawable/ic_history"
+            android:icon="@drawable/ic_histor"
             android:title="Activity Logs"
             android:iconTint="@color/material_dynamic_neutral_variant70"/>
 
@@ -41,7 +41,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_logout"
+            android:icon="@drawable/ic_logou"
             android:title="Log Out"
             android:iconTint="@color/material_dynamic_neutral_variant70"/>
     </group>

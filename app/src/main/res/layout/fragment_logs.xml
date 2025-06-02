@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Refresh Logs"
-                android:drawableStart="@drawable/ic_refresh"
+                android:drawableStart="@drawable/ic_refres"
                 android:drawablePadding="8dp"
                 android:padding="12dp"
                 android:background="#76C043"
