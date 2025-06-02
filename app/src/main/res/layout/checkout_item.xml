@@ -86,7 +86,7 @@
                     android:layout_height="36dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/quantity_backgroun"
+                    android:background="@drawable/quantity_background"
                     android:padding="4dp">
 
                     <ImageView

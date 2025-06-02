@@ -13,17 +13,17 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageView;
 
-public class CircleImageView extends AppCompatImageView {
+public class CircleImage extends AppCompatImageView {
 
-    public CircleImageView(Context context) {
+    public CircleImage(Context context) {
         super(context);
     }
 
-    public CircleImageView(Context context, AttributeSet attrs) {
+    public CircleImage(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CircleImageView(Context context, AttributeSet attrs, int defStyle) {
+    public CircleImage(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
