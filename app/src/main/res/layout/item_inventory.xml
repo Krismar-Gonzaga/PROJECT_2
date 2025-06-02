@@ -1,90 +1,132 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:gravity="center_vertical"
-    android:background="@drawable/product_corner">
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
-    <!-- Product Image -->
-    <ImageView
-        android:id="@+id/image_product"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@drawable/logo"
-        android:scaleType="centerCrop"
-        android:background="#E0E0E0"
-        android:contentDescription="Product image"
-        android:layout_marginEnd="8dp" />
-
-    <!-- Product Info (Name and ID) -->
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/white">
 
-        <TextView
-            android:id="@+id/text_product_name"
+        <!-- Product Image with improved styling -->
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:text="Product Name"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#000000" />
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp">
+            
+            <ImageView
+                android:id="@+id/image_product"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/logo"
+                android:scaleType="centerCrop"
+                android:background="#F5F5F5"
+                android:contentDescription="Product image"
+                android:padding="4dp" />
+        </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/text_stock"
+        <!-- Product Info (Name and Stock) with improved typography -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/text_product_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Product Name"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#1F1F1F"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_edit"
+                    app:tint="#78909C"
+                    android:layout_marginEnd="4dp"/>
+
+                <TextView
+                    android:id="@+id/text_stock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="63/100"
+                    android:textColor="#78909C"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Price and Actions with improved layout -->
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="63/100"
-            android:textColor="#000000"
-            android:textSize="14sp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="end">
 
+            <TextView
+                android:id="@+id/text_product_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/price_background"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+
+                <ImageView
+                    android:id="@+id/icon_edit"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_edit"
+                    app:tint="#455A64" />
+
+                <ImageView
+                    android:id="@+id/delete_product"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="4dp"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:srcCompat="@drawable/ic_delete_24"
+                    app:tint="#B71C1C" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Stock Info and Edit Icon -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical|end"
-        android:layout_marginStart="8dp">
-
-        <!-- Product Price -->
-        <TextView
-            android:id="@+id/text_product_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₱0.00"
-            android:textColor="#388E3C"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <ImageView
-            android:id="@+id/icon_edit"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="11dp"
-            android:clickable="true"
-            android:contentDescription="Edit"
-            android:src="@drawable/ic_edit"
-            app:tint="#444444"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <ImageView
-            android:id="@+id/delete_product"
-            android:layout_marginTop="15dp"
-            android:clickable="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_delete_24" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

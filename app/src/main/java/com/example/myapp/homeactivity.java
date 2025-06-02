@@ -200,11 +200,30 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         // Other click listeners
         backhome.setOnClickListener(v -> navigateToFragment(new Home(this), "Home"));
 
-        if(currentUser.getType().equals("admin")) {
-            dashboard.setOnClickListener(v -> navigateToFragment(new DashboardActivity(this), "Dashboard"));
-        }else{
-            Toast.makeText(this,"Admin Access Only!",Toast.LENGTH_SHORT).show();
-        }
+        // Update the dashboard click listener
+        dashboard.setOnClickListener(v -> {
+            if (currentUser != null && currentUser.getType().equals("admin")) {
+                try {
+                    DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
+                    getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, dashboardFragment)
+                        .addToBackStack("dashboard")
+                        .commit();
+                    PageName.setText("Dashboard");
+                    floatingActionButton.hide(); // Hide FAB when in dashboard
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                    }
+                } catch (Exception e) {
+                    Log.e("Dashboard", "Error loading dashboard: " + e.getMessage(), e);
+                    Toast.makeText(this, "Error loading dashboard: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Admin Access Only!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         checkoutbtn.setOnClickListener(v -> {
             navigateToFragment(new checkout_activity(this, this,this), "Checkout");
             floatingActionButton.hide();
@@ -234,7 +253,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     }
 
     private void navigateToProfile() {
-        PageName.setText("User Page");
+        PageName.setText("Profile");
         Toast.makeText(this, currentUser.getName(), Toast.LENGTH_SHORT).show();
         getSupportFragmentManager()
                 .beginTransaction()

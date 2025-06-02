@@ -32,13 +32,16 @@ public class LogsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view_logs);
         btnExportLogs = view.findViewById(R.id.btn_export_logs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        
+        // Initialize adapter once
         logsAdapter = new LogsAdapter(LogManager.getInstance(getContext()).getLogs());
         recyclerView.setAdapter(logsAdapter);
 
         btnExportLogs.setText("Refresh Logs");
         btnExportLogs.setOnClickListener(v -> {
-            logsAdapter = new LogsAdapter(LogManager.getInstance(getContext()).getLogs());
-            recyclerView.setAdapter(logsAdapter);
+            // Update the existing adapter's data instead of creating a new instance
+            logsAdapter.updateLogs(LogManager.getInstance(getContext()).getLogs());
+            logsAdapter.notifyDataSetChanged();
         });
 
         return view;

@@ -55,7 +55,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.productname.setText(cart_product.get(position).getName());
         holder.productprice.setText("₱ " + cart_product.get(position).getPrice());
-        holder.total_price.setText("₱ " + cart_product.get(position).getTotal_price());
+        holder.total_price.setText("Total Price: ₱ " + cart_product.get(position).getTotal_price());
         holder.total_quantity.setText(cart_product.get(position).getQuantity());
 
         Bitmap image = cart_product.get(position).getImage();
@@ -98,7 +98,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                             float result = Float.parseFloat(product.getTotal_price()) + Float.parseFloat(product.getPrice());
                             String updated_total = String.valueOf(result);
                             product.setTotal_price(updated_total);
-                            holder.total_price.setText("₱ " + updated_total);
+                            holder.total_price.setText("Total Price: ₱ " + updated_total);
                             checkoutdb.updatecheckout(product.getId(), updated_quantity, updated_total);
                             cartUpdateListener.onCartUpdated();
                         }
@@ -123,7 +123,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                             String updated_total =  String.valueOf(result);
 
                             product.setTotal_price(updated_total);
-                            holder.total_price.setText("₱ " + updated_total);
+                            holder.total_price.setText("Total Price: ₱ " + updated_total);
                             String updated_quantity = String.valueOf(Integer.parseInt(product.getQuantity()) - 1);
                             product.setQuantity(updated_quantity);
                             holder.total_quantity.setText(updated_quantity);
@@ -161,6 +161,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
 
             // 4. Update total
             Oncartupdate.OntotalCartUpdate();
+            cartUpdateListener.onCartUpdated();
 
             Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show();
         } else {

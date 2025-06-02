@@ -30,6 +30,7 @@ public class database extends SQLiteOpenHelper {
     public static final String COL_USERNAME = "username";
     public static final String COL_STORE_NAME = "store_name";
     public static final String COL_STARTED = "started";
+    public static final String COL_USER_AVATAR = "user_avatar";
 
     // Product table columns
     public static final String COL_PRODUCT_ID = "product_id";
@@ -70,7 +71,8 @@ public class database extends SQLiteOpenHelper {
                 + COL_TYPE + " TEXT NOT NULL, "
                 + COL_USERNAME + " TEXT NOT NULL,"
                 + COL_STORE_NAME + " TEXT NOT NULL,"
-                + COL_STARTED + " TEXT DEFAULT (datetime('now','localtime'))"
+                + COL_STARTED + " TEXT DEFAULT (datetime('now','localtime')),"
+                + COL_USER_AVATAR + " BLOB"
                 + ")";
         db.execSQL(CREATE_USER_TABLE);
 
@@ -421,8 +423,9 @@ public class database extends SQLiteOpenHelper {
                     COL_PRODUCT_ID + " = ?",
                     new String[]{product.getId()});
             return rowsUpdated > 0;
-        } finally {
-            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 //
@@ -449,8 +452,11 @@ public class database extends SQLiteOpenHelper {
     // Add this method to clear all items from the checkout table
     public void clearCheckoutTable() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CHECKOUT, null, null);
-        db.close();
+        try {
+            db.delete(TABLE_CHECKOUT, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -537,6 +543,50 @@ public class database extends SQLiteOpenHelper {
         int count = cursor.getCount();
         cursor.close();
         return count;
+    }
+
+    // Add new method to update user avatar
+    public boolean updateUserAvatar(String userId, byte[] avatarImage) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COL_USER_AVATAR, avatarImage);
+
+            int result = db.update(TABLE_USER, values,
+                    COL_USER_ID + " = ?",
+                    new String[]{userId});
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error updating user avatar", e);
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    // Add method to get user avatar
+    public byte[] getUserAvatar(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        byte[] avatar = null;
+        
+        Cursor cursor = db.query(TABLE_USER,
+                new String[]{COL_USER_AVATAR},
+                COL_USER_ID + " = ?",
+                new String[]{userId},
+                null, null, null);
+                
+        if (cursor != null && cursor.moveToFirst()) {
+            avatar = cursor.getBlob(cursor.getColumnIndexOrThrow(COL_USER_AVATAR));
+            cursor.close();
+        }
+        return avatar;
+    }
+
+    // Add this method to get available products
+    public Cursor getAvailableProducts() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_PRODUCT + " WHERE " + COL_QUANTITY + " > 0";
+        return db.rawQuery(query, null);
     }
 
 }

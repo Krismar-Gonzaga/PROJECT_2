@@ -5,18 +5,21 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,25 +27,23 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, OnviewAnalytics{
+public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, OnviewAnalytics {
+    private static final String TAG = "DashboardActivity";
 
-    dashboardrecycleview adapter;
+    private dashboardrecycleview adapter;
+    private database productdb;
+    private TextView total_price_sold;
+    private TextView totalOrdersCount;
+    private TextView activeProductsCount;
+    private TextView profitChangeText;
+    private RecyclerView recyclerView;
 
-    database productdb;
-
-    TextView total_price_sold;
-    RecyclerView recyclerView;
-    ArrayList<productobject> Product = new ArrayList<>();
-
-    OnviewAnalytics onviewAnalytics;
-    String total_sold;
-    @Override
-    public void viewAnalytics() {
-
-    }
-
-
+    private ArrayList<productobject> Product = new ArrayList<>();
+    private OnviewAnalytics onviewAnalytics;
+    private String total_sold;
 
     // Grouped data structure for dashboard
     public static class CheckoutGroup {
@@ -53,119 +54,317 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
             this.products = products;
         }
     }
-    ArrayList<CheckoutGroup> checkoutGroups = new ArrayList<>();
+    private ArrayList<CheckoutGroup> checkoutGroups = new ArrayList<>();
 
-    public DashboardActivity(OnviewAnalytics onviewAnalytics){
-        this.onviewAnalytics = onviewAnalytics;
+    public static DashboardActivity newInstance(OnviewAnalytics listener) {
+        DashboardActivity fragment = new DashboardActivity();
+        fragment.onviewAnalytics = listener;
+        return fragment;
+    }
+
+    public DashboardActivity() {
+        // Required empty public constructor
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
+        try {
+            if (getContext() == null) {
+                Log.e(TAG, "Context is null in onCreate");
+                return;
+            }
+            productdb = new database(getContext());
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreate: " + e.getMessage());
+        }
     }
+
     @SuppressLint("MissingInflatedId")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstranceState){
-        View view = inflater.inflate(R.layout.dashboard,container,false);
-        productdb = new database(getContext());
-        checkoutGroups.clear();
-        getGroupedProducts();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = null;
+        try {
+            view = inflater.inflate(R.layout.dashboard, container, false);
 
-        total_price_sold = view.findViewById(R.id.Sales_Profit);
-        recyclerView = view.findViewById(R.id.recyclerSold);
-        total_sold = "₱ " + String.valueOf(getTotalProfit());
-        total_price_sold.setText(total_sold);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new dashboardrecycleview(checkoutGroups,getContext(),this);
-        recyclerView.setAdapter(adapter);
-        FloatingActionButton fabAnalytics = view.findViewById(R.id.fabAnalytics);
-
-
-        fabAnalytics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onviewAnalytics.viewAnalytics();
+            if (view == null) {
+                Log.e(TAG, "Failed to inflate dashboard layout");
+                return null;
             }
-        });
 
-        return view;
+            if (getContext() == null) {
+                Log.e(TAG, "Context is null in onCreateView");
+                return view;
+            }
+
+            // Initialize database if not already initialized
+            if (productdb == null) {
+                productdb = new database(getContext());
+            }
+
+            checkoutGroups.clear();
+
+            // Initialize views
+            if (!initializeViews(view)) {
+                Log.e(TAG, "Failed to initialize views");
+                Toast.makeText(getContext(), "Error initializing dashboard views", Toast.LENGTH_SHORT).show();
+                return view;
+            }
+
+            // Load and display data
+            loadDashboardData();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreateView: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Error initializing dashboard: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return view != null ? view : new View(getContext());
+    }
+
+    private boolean initializeViews(View view) {
+        try {
+            total_price_sold = view.findViewById(R.id.SalesProfit);
+            totalOrdersCount = view.findViewById(R.id.total_Orders_Count);
+            activeProductsCount = view.findViewById(R.id.active_Products_Count);
+            profitChangeText = view.findViewById(R.id.Subtitle);
+            recyclerView = view.findViewById(R.id.recyclerSold);
+
+
+            // Check if any essential views are null
+            if (total_price_sold == null || recyclerView == null) {
+                Log.e(TAG, "Essential views are null");
+                return false;
+            }
+
+            // Setup RecyclerView
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            adapter = new dashboardrecycleview(checkoutGroups, getContext(), this);
+            recyclerView.setAdapter(adapter);
+
+            // Setup FloatingActionButton
+            FloatingActionButton fabAnalytics = view.findViewById(R.id.fabAnalytics);
+            if (fabAnalytics != null && onviewAnalytics != null) {
+                fabAnalytics.setOnClickListener(v -> {
+                    if (onviewAnalytics != null) {
+                        onviewAnalytics.viewAnalytics();
+                    }
+                });
+            }
+
+
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing views", e);
+            return false;
+        }
+    }
+
+    private void loadDashboardData() {
+        try {
+            getGroupedProducts();
+            updateDashboardStats();
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading dashboard data", e);
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error loading dashboard data", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void updateDashboardStats() {
+        try {
+            // Update total profit
+            int totalProfit = getTotalProfit();
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
+            String formattedProfit = currencyFormat.format(totalProfit);
+            if (total_price_sold != null) {
+                total_price_sold.setText(formattedProfit);
+            }
+
+            // Update total orders
+            int totalOrders = checkoutGroups.size();
+            if (totalOrdersCount != null) {
+                totalOrdersCount.setText(String.valueOf(totalOrders));
+            }
+
+            // Update active products
+            int activeProducts = getActiveProductsCount();
+            if (activeProductsCount != null) {
+                activeProductsCount.setText(String.valueOf(activeProducts));
+            }
+
+            // Update profit change percentage
+            calculateAndDisplayProfitChange();
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating dashboard stats", e);
+        }
+    }
+
+    private int getActiveProductsCount() {
+        Cursor cursor = null;
+        try {
+            cursor = productdb.getAvailableProducts();
+            return cursor != null ? cursor.getCount() : 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting active products count", e);
+            return 0;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private void calculateAndDisplayProfitChange() {
+        try {
+            // This is a placeholder. Implement actual calculation based on your requirements
+            double changePercentage = 12.5; // Example value
+            String changeText = String.format("%s%.1f%% from last month",
+                    changePercentage >= 0 ? "+" : "",
+                    changePercentage);
+            if (profitChangeText != null) {
+                profitChangeText.setText(changeText);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error calculating profit change", e);
+        }
     }
 
     private int getTotalProfit() {
         int totalSold = 0;
-        for (CheckoutGroup group : checkoutGroups) {
-            for (productobject product : group.products) {
-                try {
+        try {
+            for (CheckoutGroup group : checkoutGroups) {
+                for (productobject product : group.products) {
                     if (product.getTotal_price() != null) {
                         totalSold += Integer.parseInt(product.getTotal_price());
                     }
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
                 }
             }
+        } catch (Exception e) {
+            Log.e(TAG, "Error calculating total profit", e);
         }
         return totalSold;
     }
 
-    // New method to group products by transaction_id
-    public void getGroupedProducts(){
-        Cursor cursor = productdb.getSoldProducts();
-        Map<String, List<productobject>> groupMap = new HashMap<>();
-        if (cursor.getCount() == 0) {
-            Toast.makeText(getContext(), "No Data!", Toast.LENGTH_SHORT).show();
-        } else {
-            while (cursor.moveToNext()) {
-                String id = cursor.getString(0);
-                String name = cursor.getString(1);
-                String price = cursor.getString(2);
-                String quantity = cursor.getString(3);
-                String total_price = cursor.getString(4);
-                String transactionId = cursor.getString(5);
-                byte[] imageBytes = cursor.getBlob(6);
-                String date = cursor.getString(7);
-                Bitmap productImage = null;
-                if (imageBytes != null) {
-                    productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                }
-                productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage, date);
-                if (!groupMap.containsKey(transactionId)) {
-                    groupMap.put(transactionId, new ArrayList<>());
-                }
-                groupMap.get(transactionId).add(product);
+    private void getGroupedProducts() {
+        Cursor cursor = null;
+        try {
+            if (productdb == null) {
+                Log.e(TAG, "Database is null");
+                return;
             }
-            // Convert map to list of groups
-            for (Map.Entry<String, List<productobject>> entry : groupMap.entrySet()) {
-                checkoutGroups.add(new CheckoutGroup(entry.getKey(), entry.getValue()));
-            }
-            // Sort checkoutGroups by transactionId (date string) ascending so latest is at the bottom
-            Collections.sort(checkoutGroups, new Comparator<CheckoutGroup>() {
-                @Override
-                public int compare(CheckoutGroup o1, CheckoutGroup o2) {
-                    return o1.transactionId.compareTo(o2.transactionId);
+
+            cursor = productdb.getSoldProducts();
+            Log.d(TAG, "Cursor obtained. Count: " + (cursor != null ? cursor.getCount() : 0));
+            
+            Map<String, List<productobject>> groupMap = new HashMap<>();
+
+            if (cursor != null && cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    try {
+                        String id = cursor.getString(0);
+                        String name = cursor.getString(1);
+                        String price = cursor.getString(2);
+                        String quantity = cursor.getString(3);
+                        String total_price = cursor.getString(4);
+                        String transactionId = cursor.getString(5);
+                        byte[] imageBytes = cursor.getBlob(6);
+                        String date = cursor.getString(7);
+
+                        Log.d(TAG, "Processing product: " + name + ", transactionId: " + transactionId);
+
+                        Bitmap productImage = null;
+                        if (imageBytes != null) {
+                            productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                        }
+
+                        productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage, date);
+                        
+                        if (transactionId != null) {
+                            if (!groupMap.containsKey(transactionId)) {
+                                groupMap.put(transactionId, new ArrayList<>());
+                            }
+                            groupMap.get(transactionId).add(product);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error processing cursor row: " + e.getMessage());
+                    }
                 }
-            });
+
+                // Convert map to list of groups
+                checkoutGroups.clear();
+                for (Map.Entry<String, List<productobject>> entry : groupMap.entrySet()) {
+                    if (entry.getKey() != null && entry.getValue() != null) {
+                        checkoutGroups.add(new CheckoutGroup(entry.getKey(), entry.getValue()));
+                    }
+                }
+
+                Log.d(TAG, "Number of checkout groups: " + checkoutGroups.size());
+
+                // Sort checkoutGroups by transactionId (date string) descending
+                if (!checkoutGroups.isEmpty()) {
+                    Collections.sort(checkoutGroups, (o1, o2) -> {
+                        if (o1 == null || o2 == null || o1.transactionId == null || o2.transactionId == null) {
+                            return 0;
+                        }
+                        return o2.transactionId.compareTo(o1.transactionId);
+                    });
+                }
+
+                // Notify adapter of data change
+                if (adapter != null) {
+                    adapter.updateData(checkoutGroups);
+                } else {
+                    Log.e(TAG, "Adapter is null when trying to update data");
+                }
+            } else {
+                if (getContext() != null) {
+                    Log.d(TAG, "No sold products found in database");
+                    Toast.makeText(getContext(), "No Data Available", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting grouped products: " + e.getMessage());
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error loading products: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
         }
-        cursor.close();
     }
-
-    public void updatetotal(){
-        total_price_sold.setText("₱ " + String.valueOf(getTotalProfit()));
-    }
-
 
     @Override
     public void Update_total_profit() {
-        // Clear and reload the grouped products
-        checkoutGroups.clear();
-        getGroupedProducts();
-        
-        // Update the adapter with new data
-        adapter.updateData(checkoutGroups);
-        
-        // Update the total profit display
-        updatetotal();
+        try {
+            loadDashboardData();
+            if (adapter != null) {
+                adapter.updateData(checkoutGroups);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating total profit", e);
+        }
+    }
+
+    @Override
+    public void viewAnalytics() {
+        // Implement analytics view
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Opening Analytics", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            if (productdb != null) {
+                productdb.close();
+                productdb = null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onDestroy: " + e.getMessage());
+        }
     }
 }

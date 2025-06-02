@@ -39,13 +39,28 @@ public class LogManager {
         }
     }
 
-    public List<String> getLogs() {
-        List<String> logs = new ArrayList<>();
+    public List<LogEntry> getLogs() {
+        List<LogEntry> logs = new ArrayList<>();
         try (FileInputStream fis = context.openFileInput(LOG_FILE_NAME);
              BufferedReader reader = new BufferedReader(new InputStreamReader(fis))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                logs.add(line);
+                // Parse the timestamp from the log entry
+                if (line.length() > 22 && line.startsWith("[") && line.contains("]")) {
+                    String timestampStr = line.substring(1, 20); // Extract "yyyy-MM-dd HH:mm:ss"
+                    String message = line.substring(line.indexOf("]") + 2); // Get message after "] "
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date date = sdf.parse(timestampStr);
+                        logs.add(new LogEntry(message, date.getTime()));
+                    } catch (Exception e) {
+                        // If parsing fails, create entry with current timestamp
+                        logs.add(new LogEntry(line));
+                    }
+                } else {
+                    // If the line doesn't match expected format, create entry with current timestamp
+                    logs.add(new LogEntry(line));
+                }
             }
         } catch (IOException e) {
             // File may not exist yet, that's fine

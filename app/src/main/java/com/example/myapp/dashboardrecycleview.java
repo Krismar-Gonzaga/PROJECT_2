@@ -26,6 +26,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
 
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_PRODUCT = 1;
+    private static final String TAG = "DashboardAdapter";
 
     private List<DashboardActivity.CheckoutGroup> checkoutGroups;
     private List<Object> displayItems = new ArrayList<>();
@@ -37,91 +38,119 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     private OnTotalProfitUpdate TotalProfitUpdate;
 
     public dashboardrecycleview(List<DashboardActivity.CheckoutGroup> checkoutGroups, Context context, OnTotalProfitUpdate OnTotalProfitUpdate) {
-        this.checkoutGroups = checkoutGroups;
+        this.checkoutGroups = checkoutGroups != null ? checkoutGroups : new ArrayList<>();
         this.context = context;
         this.db = new database(context);
         this.TotalProfitUpdate = OnTotalProfitUpdate;
         buildDisplayItems();
+        Log.d(TAG, "Adapter initialized with " + this.checkoutGroups.size() + " groups");
     }
 
     public void updateData(List<DashboardActivity.CheckoutGroup> newCheckoutGroups) {
-        this.checkoutGroups = newCheckoutGroups;
+        Log.d(TAG, "Updating data with " + (newCheckoutGroups != null ? newCheckoutGroups.size() : 0) + " groups");
+        this.checkoutGroups = newCheckoutGroups != null ? newCheckoutGroups : new ArrayList<>();
         buildDisplayItems();
         notifyDataSetChanged();
     }
 
     private void buildDisplayItems() {
         displayItems.clear();
-        for (DashboardActivity.CheckoutGroup group : checkoutGroups) {
-            displayItems.add(group.transactionId);
-            displayItems.addAll(group.products);
+        if (checkoutGroups != null) {
+            for (DashboardActivity.CheckoutGroup group : checkoutGroups) {
+                if (group != null && group.transactionId != null) {
+                    displayItems.add(group.transactionId);
+                    if (group.products != null) {
+                        displayItems.addAll(group.products);
+                    }
+                }
+            }
         }
+        Log.d(TAG, "Built display items: " + displayItems.size() + " items");
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (displayItems.get(position) instanceof String) {
-            return VIEW_TYPE_HEADER;
-        } else {
-            return VIEW_TYPE_PRODUCT;
-        }
+        Object item = displayItems.get(position);
+        return (item instanceof String) ? VIEW_TYPE_HEADER : VIEW_TYPE_PRODUCT;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
         if (viewType == VIEW_TYPE_HEADER) {
-            View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
+            View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             return new HeaderViewHolder(view);
         } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_dashboard_product, parent, false);
+            View view = inflater.inflate(R.layout.item_dashboard_product, parent, false);
             return new ProductViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (getItemViewType(position) == VIEW_TYPE_HEADER) {
-            String transactionId = (String) displayItems.get(position);
-            ((HeaderViewHolder) holder).headerText.setText("Checkout ID: " + transactionId);
-        } else {
-            // Get the product locally instead of using a class variable
-            productobject currentProduct = (productobject) displayItems.get(position);
-            ProductViewHolder productHolder = (ProductViewHolder) holder;
-            productHolder.quantity.setText("Total Quantity: " + currentProduct.getQuantity());
-            productHolder.total_price.setText("Total Price: " + currentProduct.getTotal_price());
-            productHolder.productname.setText(currentProduct.getName());
-            productHolder.date.setText("Date: " + currentProduct.getDate());
-
-            productHolder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showDeleteConfirmationDialog(deleted -> {
-                        if (deleted) {
-                            // User confirmed deletion
-                            // Delete from database first
-                            boolean delete = db.delete_sold_product(currentProduct.getId());
-                            if (delete) {
-                                // Update total profit through the interface
-                                if (TotalProfitUpdate != null) {
-                                    TotalProfitUpdate.Update_total_profit();
-                                }
-                                Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(context, "Failed to Delete Sold Product!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+        try {
+            if (getItemViewType(position) == VIEW_TYPE_HEADER) {
+                String transactionId = (String) displayItems.get(position);
+                if (transactionId != null) {
+                    ((HeaderViewHolder) holder).headerText.setText("Transaction ID: " + transactionId);
                 }
-            });
-
-            Bitmap image = currentProduct.getImage();
-            if (image != null) {
-                productHolder.productImage.setImageBitmap(image);
-                productHolder.productImage.setVisibility(View.VISIBLE);
             } else {
-                productHolder.productImage.setVisibility(View.GONE);
+                productobject currentProduct = (productobject) displayItems.get(position);
+                if (currentProduct == null) {
+                    Log.e(TAG, "Product at position " + position + " is null");
+                    return;
+                }
+
+                ProductViewHolder productHolder = (ProductViewHolder) holder;
+                
+                // Set text with null checks and proper formatting
+                productHolder.quantity.setText("Total Quantity: " + 
+                    (currentProduct.getQuantity() != null ? currentProduct.getQuantity() : "0"));
+                
+                // Format total price with currency
+                String totalPrice = currentProduct.getTotal_price() != null ? 
+                    String.format("₱%.2f", Float.parseFloat(currentProduct.getTotal_price())) : "₱0.00";
+                productHolder.total_price.setText("Total Price: " + totalPrice);
+                
+                productHolder.productname.setText(currentProduct.getName() != null ? 
+                    currentProduct.getName() : "Unknown Product");
+                
+                productHolder.date.setText("Date: " + 
+                    (currentProduct.getDate() != null ? currentProduct.getDate() : "No Date"));
+
+                // Handle delete action safely
+                productHolder.delete.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Delete Sold Product")
+                           .setMessage("Are you sure you want to delete this sold product?")
+                           .setPositiveButton("Delete", (dialog, which) -> {
+                                if (db != null && currentProduct.getId() != null) {
+                                    boolean deleted = db.delete_sold_product(currentProduct.getId());
+                                    if (deleted && TotalProfitUpdate != null) {
+                                        TotalProfitUpdate.Update_total_profit();
+                                        Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context, "Failed to delete sold product!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                           })
+                           .setNegativeButton("Cancel", null)
+                           .show();
+                });
+
+                // Handle image safely
+                Bitmap image = currentProduct.getImage();
+                if (image != null && !image.isRecycled()) {
+                    productHolder.productImage.setImageBitmap(image);
+                    productHolder.productImage.setVisibility(View.VISIBLE);
+                } else {
+                    productHolder.productImage.setImageResource(R.drawable.logo);
+                    productHolder.productImage.setVisibility(View.VISIBLE);
+                }
             }
+        } catch (Exception e) {
+            Log.e(TAG, "Error binding view holder: " + e.getMessage());
         }
     }
 
