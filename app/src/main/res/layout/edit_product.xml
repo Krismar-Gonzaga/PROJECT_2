@@ -4,112 +4,133 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="400dp"
     android:layout_height="match_parent"
-    android:backgroundTint="#D4E24E">
-    <!-- res/layout/dialog_add_product.xml -->
-    <LinearLayout
-        android:layout_width="358dp"
-        android:layout_height="548dp"
-        android:background="@drawable/rounded_dialog_bg"
-        android:orientation="vertical"
-        android:padding="20dp"
+    android:background="#FAFAFA">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="50dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/edit_to_inventory"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="@drawable/ic_back"
-            android:clickable="true"
-            android:contentDescription="@string/action_sign_in_short"
-            android:translationX="@dimen/cardview_compat_inset_shadow"
-            tools:ignore="TouchTargetSizeCheck">
-
-        </ImageView>
-
-        <!-- Product Name Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Product Name"
-            android:textColor="#333"
-            android:textSize="15sp"
-            android:layout_marginTop="30dp" />
-        <!-- Product Name Input -->
-        <EditText
-            android:id="@+id/editname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter product name"
-            android:textColor="#666666"
-            android:minHeight="48dp"
-            android:padding="10dp" />
-
-        <!-- Product Price Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Product Price"
-            android:textColor="#333"
-            android:textSize="15sp"
-            android:layout_marginTop="40dp" />
-        <!-- Product Price Input with Peso Sign -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <TextView
-                android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Header Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="₱"
-                android:textSize="18sp"
-                android:textColor="#666"
-                android:paddingLeft="8dp"
-                android:paddingRight="4dp" />
-            <EditText
-                android:id="@+id/editprice"
-                android:layout_width="0dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+
+                <ImageView
+                    android:id="@+id/edit_to_inventory"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_back"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:contentDescription="@string/action_sign_in_short" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Product"
+                    android:textSize="24sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+
+            <!-- Product Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="#666666"
-                android:hint="0.00"
-                android:minHeight="48dp" />
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Product Name Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Product Name"
+                        app:boxStrokeColor="#76C043"
+                        app:hintTextColor="#76C043"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#333333"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Price Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Price"
+                        app:boxStrokeColor="#76C043"
+                        app:hintTextColor="#76C043"
+                        app:prefixText="₱"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editprice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:textColor="#333333"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Quantity Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Quantity"
+                        app:boxStrokeColor="#76C043"
+                        app:hintTextColor="#76C043"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editquantity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textColor="#333333"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btneditItem"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Save Changes"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:cornerRadius="8dp"
+                android:backgroundTint="#76C043"/>
+
         </LinearLayout>
-
-        <!-- Total Quantity Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total Quantity"
-            android:textColor="#333"
-            android:textSize="15sp"
-            android:layout_marginTop="40dp" />
-        <!-- Total Quantity Input -->
-        <EditText
-            android:id="@+id/editquantity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter total quantity"
-            android:textColor="#666666"
-            android:inputType="number"
-            android:minHeight="48dp" />
-
-        <Button
-            android:id="@+id/btneditItem"
-            android:layout_width="170dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="140dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/rounded_corner"
-            android:backgroundTint="#4CAF50"
-            android:minHeight="48dp"
-            android:text="Save"
-            android:textColor="#FAFAFA" />
-    </LinearLayout>
-
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
