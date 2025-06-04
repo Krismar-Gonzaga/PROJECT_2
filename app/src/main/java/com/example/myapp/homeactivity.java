@@ -387,7 +387,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             PageName.setText("Add Product");
         } else if (fragment instanceof edit_Activity) {
             PageName.setText("Edit Product");
+        }else if (fragment instanceof AnalyticsFragment) {
+            PageName.setText("Dashboard");
         }
+
     }
 
     @Override
