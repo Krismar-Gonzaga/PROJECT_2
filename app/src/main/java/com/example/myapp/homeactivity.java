@@ -79,7 +79,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
         // Setup navigation drawer
         setupNavigationDrawer();
-//        navigateToFragment(new Home(this), "Store");
+
 
 
         DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
@@ -206,7 +206,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
         // Update the dashboard click listener
         dashboard.setOnClickListener(v -> {
-            if (currentUser != null && currentUser.getType().equals("admin")) {
+            if (currentUser != null) {
                 try {
                     DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
                     getSupportFragmentManager()
@@ -223,8 +223,6 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                     Log.e("Dashboard", "Error loading dashboard: " + e.getMessage(), e);
                     Toast.makeText(this, "Error loading dashboard: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(this, "Admin Access Only!", Toast.LENGTH_SHORT).show();
             }
         });
 

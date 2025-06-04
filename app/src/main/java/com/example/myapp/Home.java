@@ -97,6 +97,7 @@ public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateLi
 
     private void updateNoProductsVisibility() {
         if (Product.isEmpty()) {
+
             recyclerView.setVisibility(View.GONE);
             noProductsLayout.setVisibility(View.VISIBLE);
             
@@ -131,6 +132,13 @@ public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateLi
             @Override
             public void afterTextChanged(Editable s) {
                 currentSearchQuery = s.toString().toLowerCase().trim();
+                
+                // If user starts searching, reset category filter to "All Categories"
+                if (!currentSearchQuery.isEmpty() && !currentCategory.equals("All Categories")) {
+                    currentCategory = "All Categories";
+                    categorySpinner.setSelection(0); // First position is "All Categories"
+                }
+                
                 Product.clear();
                 getdata();
                 adapter.notifyDataSetChanged();
@@ -200,7 +208,10 @@ public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateLi
         Product.clear();
         Cursor cursor;
         
-        if (currentCategory.equals("All Categories")) {
+        // Always get all products if there's a search query
+        if (!currentSearchQuery.isEmpty()) {
+            cursor = db.getProduct();
+        } else if (currentCategory.equals("All Categories")) {
             cursor = db.getProduct();
         } else {
             cursor = db.getProductsByCategory(currentCategory);
@@ -217,11 +228,22 @@ public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateLi
                 String overquantity = cursor.getString(5);
                 String category = cursor.getString(6);
 
-                // Apply search filter
-                if (!currentSearchQuery.isEmpty() &&
-                    !name.toLowerCase().contains(currentSearchQuery) &&
-                    !category.toLowerCase().contains(currentSearchQuery)) {
-                    continue; // Skip this item if it doesn't match the search
+                // Apply filters:
+                // 1. If there's a search query, check if name or category contains it
+                // 2. If there's a category filter (and no search query), check if category matches
+                boolean shouldAdd = true;
+                
+                if (!currentSearchQuery.isEmpty()) {
+                    // If there's a search query, check if name or category contains it
+                    shouldAdd = name.toLowerCase().contains(currentSearchQuery) ||
+                              category.toLowerCase().contains(currentSearchQuery);
+                } else if (!currentCategory.equals("All Categories")) {
+                    // If there's no search but there's a category filter
+                    shouldAdd = category.equals(currentCategory);
+                }
+
+                if (!shouldAdd) {
+                    continue;
                 }
 
                 byte[] imageBytes = cursor.getBlob(7);
