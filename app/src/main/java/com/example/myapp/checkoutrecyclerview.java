@@ -55,15 +55,13 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.productname.setText(cart_product.get(position).getName());
         holder.productprice.setText("₱ " + cart_product.get(position).getPrice());
-        holder.total_price.setText("Total Price: ₱ " + cart_product.get(position).getTotal_price());
+        holder.total_price.setText("Total: ₱ " + cart_product.get(position).getTotal_price());
         holder.total_quantity.setText(cart_product.get(position).getQuantity());
 
         Bitmap image = cart_product.get(position).getImage();
         if (image != null) {
             holder.productImage.setImageBitmap(image);
             holder.productImage.setVisibility(View.VISIBLE);
-        } else {
-            holder.productImage.setVisibility(View.GONE);
         }
 
         // Add click listener for quantity
@@ -98,7 +96,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                             float result = Float.parseFloat(product.getTotal_price()) + Float.parseFloat(product.getPrice());
                             String updated_total = String.valueOf(result);
                             product.setTotal_price(updated_total);
-                            holder.total_price.setText("Total Price: ₱ " + updated_total);
+                            holder.total_price.setText("Total: ₱ " + updated_total);
                             checkoutdb.updatecheckout(product.getId(), updated_quantity, updated_total);
                             cartUpdateListener.onCartUpdated();
                         }
@@ -123,7 +121,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                             String updated_total =  String.valueOf(result);
 
                             product.setTotal_price(updated_total);
-                            holder.total_price.setText("Total Price: ₱ " + updated_total);
+                            holder.total_price.setText("Total: ₱ " + updated_total);
                             String updated_quantity = String.valueOf(Integer.parseInt(product.getQuantity()) - 1);
                             product.setQuantity(updated_quantity);
                             holder.total_quantity.setText(updated_quantity);
@@ -267,6 +265,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
                         cursor.getString(4),  // quantity
                         cursor.getString(5),  // overquantity
                         null,
+                        "",
                         ""
                 );
             }

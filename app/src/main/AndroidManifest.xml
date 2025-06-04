@@ -62,6 +62,12 @@
             tools:ignore="Instantiatable">
         </activity>
 
+
+
     </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:ignore="WrongManifestParent" />
+    <uses-permission android:name="android.permission.CAMERA"
+        tools:ignore="PermissionImpliesUnsupportedChromeOsHardware,WrongManifestParent" />
 
 </manifest>

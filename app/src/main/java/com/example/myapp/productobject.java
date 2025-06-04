@@ -15,10 +15,10 @@ public class productobject implements Parcelable {
     private String total_price;
     private String quantity;
     private String Overquantity , date;
-
+    private String category;
     private Bitmap image;
 
-    public productobject(String id, String name, String price, String total_price, String quantity, String overQuantity, Bitmap image, String date) {
+    public productobject(String id, String name, String price, String total_price, String quantity, String overQuantity, Bitmap image, String date, String category) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -27,6 +27,7 @@ public class productobject implements Parcelable {
         this.Overquantity = overQuantity;
         this.image = image;
         this.date = date;
+        this.category = category;
     }
 
 
@@ -102,6 +103,15 @@ public class productobject implements Parcelable {
     public void setTotal_price(String total_price) {
         this.total_price = total_price;
     }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     // Getters (and setters if needed)
 
 
@@ -121,6 +131,7 @@ public class productobject implements Parcelable {
         name = in.readString();
         price = in.readString();
         quantity = in.readString();
+        category = in.readString();
     }
 
     @Override
@@ -129,6 +140,7 @@ public class productobject implements Parcelable {
         dest.writeString(name);
         dest.writeString(price);
         dest.writeString(quantity);
+        dest.writeString(category);
     }
 
     public static final Creator<productobject> CREATOR = new Creator<productobject>() {

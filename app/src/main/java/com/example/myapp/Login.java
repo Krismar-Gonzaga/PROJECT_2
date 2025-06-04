@@ -24,9 +24,8 @@ public class Login extends AppCompatActivity {
     private TextView Sign_upButton;
 
     database db;
-    User account_login ;
+    User account_login;
     ArrayList<User> User = new ArrayList<>();
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -42,7 +41,6 @@ public class Login extends AppCompatActivity {
         passwordlogin = findViewById(R.id.password);
         button = findViewById(R.id.button2);
         Sign_upButton = findViewById(R.id.sign_btn);
-
 
         Sign_upButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,17 +63,20 @@ public class Login extends AppCompatActivity {
                     LogManager.getInstance(getApplicationContext()).log("Login failed: empty fields");
                 } else {
                     boolean notfound = false;
-                    for (User user: User) {
+                    for (User user : User) {
                         if (email.equals(user.getEmailAddress().trim()) &&
                                 password.equals(user.getPassword().trim())) {
                             User currentUser = user;
                             Toast.makeText(Login.this, "Login Successfully", Toast.LENGTH_SHORT).show();
                             LogManager.getInstance(getApplicationContext()).log("Login success: " + email);
                             notfound = true;
-                            // Pass user to homeactivity
-                            Intent intent = new Intent(getBaseContext(), homeactivity.class);
+                            
+                            // Redirect to DashboardActivity instead of homeactivity
+                            Intent intent = new Intent(Login.this, homeactivity.class);
                             intent.putExtra("CURRENT_USER", currentUser);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
+                            finish(); // Close the login activity
                         }
                     }
                     if (!notfound) {
@@ -87,13 +88,12 @@ public class Login extends AppCompatActivity {
         });
     }
 
-
-    public void display(){
+    public void display() {
         Cursor cursor = db.getUsers();
-        if (cursor.getCount() == 0){
-            Toast.makeText(Login.this,"No Data!",Toast.LENGTH_SHORT).show();
-        }else{
-            while(cursor.moveToNext()){
+        if (cursor.getCount() == 0) {
+            Toast.makeText(Login.this, "No Data!", Toast.LENGTH_SHORT).show();
+        } else {
+            while (cursor.moveToNext()) {
                 User account = new User(
                         cursor.getString(0),
                         cursor.getString(1),
@@ -107,7 +107,4 @@ public class Login extends AppCompatActivity {
             }
         }
     }
-
-
-
 }

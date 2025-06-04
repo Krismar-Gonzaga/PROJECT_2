@@ -9,20 +9,124 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
+        <!-- Search Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search Products"
+            app:boxStrokeColor="#76C043"
+            app:hintTextColor="#76C043"
+            app:startIconDrawable="@android:drawable/ic_menu_search"
+            app:startIconTint="#76C043"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="16dp">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:imeOptions="actionSearch"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/spinnerPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="Select Category"
+            android:textColor="@android:color/black"
+            />
+
+        <!-- Category Filter -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Filter by Category"
+            app:boxStrokeColor="#76C043"
+            app:hintTextColor="#76C043"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/categoryFilterSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:spinnerMode="dropdown"
+                    android:background="@android:color/transparent"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_dropdown"
+                    android:contentDescription="Category filter dropdown"/>
+
+            </FrameLayout>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- No Products Placeholder -->
+        <LinearLayout
+            android:id="@+id/noProductsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="32dp">
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/ic_inventory"
+                android:alpha="0.5"
+                android:contentDescription="No products found"/>
+
+            <TextView
+                android:id="@+id/noProductsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Products Found"
+                android:textSize="18sp"
+                android:textColor="#757575"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/noProductsSubtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Try adjusting your search or filter"
+                android:textSize="14sp"
+                android:textColor="#9E9E9E"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
 
         <!-- RecyclerView for inventory list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewInventory"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:contentDescription="@string/app_name"
             android:padding="4dp" />
 
     </LinearLayout>
-
 
 </androidx.drawerlayout.widget.DrawerLayout>

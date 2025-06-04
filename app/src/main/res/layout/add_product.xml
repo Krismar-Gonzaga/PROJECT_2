@@ -117,7 +117,7 @@
                     android:textColor="#333333"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Quantity Input with Material Design -->
+            <!-- Quantity Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                 app:boxStrokeColor="#76C043"
                 app:hintTextColor="#76C043"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/quantity"
@@ -133,6 +133,42 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:textColor="#333333"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Category Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Category"
+                app:boxStrokeColor="#76C043"
+                app:hintTextColor="#76C043"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="24dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Spinner
+                        android:id="@+id/categorySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:spinnerMode="dropdown"
+                        android:background="@android:color/transparent"/>
+
+                    <!-- Add a small dropdown indicator -->
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="12dp"
+                        android:src="@drawable/ic_dropdown"
+                        android:contentDescription="Dropdown indicator"/>
+                </FrameLayout>
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Add Item Button -->
@@ -144,8 +180,7 @@
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 app:cornerRadius="8dp"
-                android:backgroundTint="#76C043"
-                android:layout_marginTop="8dp"/>
+                android:backgroundTint="#76C043"/>
 
         </LinearLayout>
     </ScrollView>

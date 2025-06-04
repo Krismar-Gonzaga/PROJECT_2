@@ -11,10 +11,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -43,6 +47,16 @@ public class product extends Fragment {
     private database db;
     private Bitmap productImageBitmap;
     private Uri imageUri;
+    private Spinner categorySpinner;
+    private String selectedCategory;
+
+    private static final String[] CATEGORIES = {
+        "Fruits", "Vegetables", "Dairy", "Bread and baked goods",
+        "Meat and fish", "Meat alternatives", "Cans and jars",
+        "Pasta, rice, and cereals", "Sauces and condiments", "Herbs and spices",
+        "Frozen foods", "Snacks", "Drinks", "Household and cleaning",
+        "Personal care", "Pet care", "Baby products"
+    };
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -101,6 +115,51 @@ public class product extends Fragment {
         add_button = view.findViewById(R.id.btnAddItem);
         uploadImage = view.findViewById(R.id.uploadImage);
         productImageView = view.findViewById(R.id.productImage);
+        categorySpinner = view.findViewById(R.id.categorySpinner);
+
+        // Set up category spinner
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<String>(
+            getContext(),
+            android.R.layout.simple_spinner_item,
+            CATEGORIES
+        ) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                text.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                text.setTextSize(16);
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                text.setTextColor(getResources().getColor(android.R.color.black));
+                text.setTextSize(16);
+                int padding = (int) (16 * getResources().getDisplayMetrics().density);
+                text.setPadding(padding, padding, padding, padding);
+                return view;
+            }
+        };
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
+
+        // Initialize selectedCategory with the first category
+        selectedCategory = CATEGORIES[0];
+
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = CATEGORIES[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedCategory = CATEGORIES[0];
+            }
+        });
 
         // Set up image upload button
         uploadImage.setOnClickListener(v -> openImageChooser());
@@ -170,32 +229,53 @@ public class product extends Fragment {
             return;
         }
 
+        if (selectedCategory == null) {
+            selectedCategory = CATEGORIES[0]; // Set default category if none selected
+        }
+
         try {
             float price = Float.parseFloat(priceStr);
             int quantity = Integer.parseInt(quantityStr);
 
+            if (price <= 0) {
+                Toast.makeText(getContext(), "Price must be greater than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (quantity <= 0) {
+                Toast.makeText(getContext(), "Quantity must be greater than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             byte[] imageBytes = null;
             if (productImageBitmap != null) {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Use WEBP format for better compression with quality setting
                 productImageBitmap.compress(Bitmap.CompressFormat.WEBP, IMAGE_QUALITY, stream);
                 imageBytes = stream.toByteArray();
                 stream.close();
             }
 
-            boolean inserted = db.add_product(currentUser.getId(), name, price, quantity, imageBytes);
+            if (currentUser == null || currentUser.getId() == null) {
+                Toast.makeText(getContext(), "Error: User information not available", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean inserted = db.add_product(currentUser.getId(), name, price, quantity, imageBytes, selectedCategory);
 
             if (inserted) {
                 Toast.makeText(getContext(), "Product Added Successfully!", Toast.LENGTH_SHORT).show();
                 notifyParentAndClose();
             } else {
-                Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Product with this name already exists", Toast.LENGTH_SHORT).show();
             }
         } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please enter valid numbers for price and quantity", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Log.e("SaveError", "Error compressing image", e);
             Toast.makeText(getContext(), "Error saving image", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e("SaveError", "Error saving product: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Error saving product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

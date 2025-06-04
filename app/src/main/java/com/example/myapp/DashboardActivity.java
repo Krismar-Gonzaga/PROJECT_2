@@ -75,6 +75,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
                 return;
             }
             productdb = new database(getContext());
+            productdb.addCategoryColumnIfNeeded();
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate: " + e.getMessage());
         }
@@ -256,7 +257,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
             cursor = productdb.getSoldProducts();
             Log.d(TAG, "Cursor obtained. Count: " + (cursor != null ? cursor.getCount() : 0));
-            
+
             Map<String, List<productobject>> groupMap = new HashMap<>();
 
             if (cursor != null && cursor.getCount() > 0) {
@@ -270,6 +271,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
                         String transactionId = cursor.getString(5);
                         byte[] imageBytes = cursor.getBlob(6);
                         String date = cursor.getString(7);
+                        String category = "Uncategorized"; // Default category if not found
 
                         Log.d(TAG, "Processing product: " + name + ", transactionId: " + transactionId);
 
@@ -278,8 +280,8 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
                             productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                         }
 
-                        productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage, date);
-                        
+                        productobject product = new productobject(id, name, price, total_price, quantity, quantity, productImage, date, category);
+
                         if (transactionId != null) {
                             if (!groupMap.containsKey(transactionId)) {
                                 groupMap.put(transactionId, new ArrayList<>());
@@ -320,7 +322,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
             } else {
                 if (getContext() != null) {
                     Log.d(TAG, "No sold products found in database");
-                    Toast.makeText(getContext(), "No Data Available", Toast.LENGTH_SHORT).show();
+                    // Don't show toast for empty data, just log it
                 }
             }
         } catch (Exception e) {

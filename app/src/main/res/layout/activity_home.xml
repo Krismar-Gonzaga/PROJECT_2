@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="#FAFAFA"
     tools:context=".homeactivity">
-    
+
     <FrameLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -22,19 +22,20 @@
             android:background="#76C043"
             android:elevation="4dp"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp">
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
 
             <ImageView
-                android:id="@+id/menuIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_weight="0"
-                android:clickable="true"
-                android:contentDescription="@string/welcome"
-                android:padding="4dp"
-                android:src="@drawable/baseline_dehaze_24"
+                android:id="@+id/back_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:src="@drawable/ic_arrow_back"
+                android:clickable="true"
+                android:padding="12dp"
+                android:contentDescription="Back"
+                android:focusable="true" />
 
             <TextView
                 android:id="@+id/Pagename"
@@ -49,15 +50,16 @@
                 android:letterSpacing="0.05" />
 
             <ImageView
-                android:id="@+id/back_btn"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/back"
+                android:id="@+id/menuIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
                 android:clickable="true"
-                android:padding="4dp"
-                android:contentDescription="@string/action_sign_in"
-                tools:ignore="TouchTargetSizeCheck" />
+                android:contentDescription="Menu"
+                android:padding="12dp"
+                android:src="@drawable/baseline_dehaze_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:focusable="true" />
 
         </LinearLayout>
 
@@ -74,7 +76,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_gravity="bottom|end"
-                android:layout_marginEnd="24dp"
+                android:layout_marginEnd="155dp"
                 android:layout_marginBottom="24dp"
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/ic_add"
@@ -106,7 +108,7 @@
                 android:contentDescription="@string/prompt_email"
                 android:padding="12dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/home"
+                android:src="@drawable/ic_store"
                 app:tint="#76C043" />
 
             <ImageView
@@ -140,8 +142,8 @@
 
                 <TextView
                     android:id="@+id/cartBadge"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="29dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top|end"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="4dp"
@@ -167,12 +169,11 @@
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
+        android:layout_gravity="end"
         android:fitsSystemWindows="true"
         android:background="#FFFFFF"
         app:itemIconTint="#76C043"
         app:itemTextColor="#333333"
-
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

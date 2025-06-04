@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +34,9 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     OntotalCartUpdated Oncartupdate;
     OnlowStockchecker checklowstock;
     private String storeName;
-
+    private LinearLayout emptyCartContainer;
+    private View bottomContainer;
+    private View headerContainer;
 
     public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock) {
         this.OnSuccessfulCheckout = Backhome;
@@ -46,9 +49,13 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.checkout_activity, container, false);
 
+        // Initialize views
         total_bill = view.findViewById(R.id.total_bill);
         recyclerView = view.findViewById(R.id.checkoutrecyclerView);
         btn_checkout = view.findViewById(R.id.btn_checkout);
+        emptyCartContainer = view.findViewById(R.id.empty_cart_container);
+        bottomContainer = view.findViewById(R.id.bottom_container);
+        headerContainer = view.findViewById(R.id.header_container);
 
         checkoutdb = new database(getContext());
         refreshCartData();
@@ -58,6 +65,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         adapter = new checkoutrecyclerview(Cart_Product, getContext(), this, Oncartupdate);
         recyclerView.setAdapter(adapter);
         updateTotalBill();
+        updateEmptyCartVisibility();
 
         btn_checkout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +75,20 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         });
 
         return view;
+    }
+
+    private void updateEmptyCartVisibility() {
+        if (Cart_Product.isEmpty()) {
+            emptyCartContainer.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            bottomContainer.setVisibility(View.GONE);
+            headerContainer.setVisibility(View.GONE);
+        } else {
+            emptyCartContainer.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            bottomContainer.setVisibility(View.VISIBLE);
+            headerContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void loadStoreName() {
@@ -80,14 +102,29 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     private void refreshCartData() {
         Cart_Product.clear();
         getcheckout();
+        updateEmptyCartVisibility();
     }
 
     private void processCheckout() {
+        if (Cart_Product.isEmpty()) {
+            Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        float totalAmount = calculateTotal();
+        PaymentConfirmationDialog dialog = new PaymentConfirmationDialog(
+            Cart_Product,
+            totalAmount,
+            () -> processPaymentConfirmed(totalAmount)
+        );
+        dialog.show(getParentFragmentManager(), "payment_confirmation");
+    }
+
+    private void processPaymentConfirmed(float totalAmount) {
         boolean isProcessed = false;
         String transactionId = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         ArrayList<productobject> inventoryItems = get_Product();
         ArrayList<productobject> cartItems = get_Checkout_item();
-        float totalAmount = calculateTotal();
 
         for (productobject cartItem : cartItems) {
             for (productobject inventoryItem : inventoryItems) {
@@ -187,6 +224,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         cursor.getString(4),  // quantity
                         cursor.getString(3),
                         null, // total_price (fixed from 3 to 5)
+                        "",
                         ""
                 ));
             }
@@ -214,6 +252,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         cursor.getString(4),
                         cursor.getString(4),
                         productImage,
+                        "",
                         ""
                 ));
             }
@@ -242,7 +281,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
 
-                productobject product = new productobject(id, name, price, total_price,quantity, quantity, productImage, "");
+                productobject product = new productobject(id, name, price, total_price,quantity, quantity, productImage, "","");
                 Cart_Product.add(product);
             }
         }
@@ -252,6 +291,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     @Override
     public void onCartUpdated() {
         updateTotalBill();
+        updateEmptyCartVisibility();
     }
 
     public void updateTotalBill() {
@@ -276,4 +316,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     public void BackHome() {
 
     }
+
+
+
+
 }

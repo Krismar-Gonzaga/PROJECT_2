@@ -1,5 +1,6 @@
 package com.example.myapp;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,6 +15,7 @@ public class NotificationHelper {
     private static final String CHANNEL_NAME = "Low Stock Notifications";
     private static final int NOTIFICATION_ID = 1;
 
+    @SuppressLint("NotificationPermission")
     public static void showLowStockNotification(Context context, int lowStockCount) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -28,7 +30,7 @@ public class NotificationHelper {
         }
 
         // Create intent to open the app when notification is clicked
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, Inventory.class);
         intent.putExtra("open_fragment", "low_stock");
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,

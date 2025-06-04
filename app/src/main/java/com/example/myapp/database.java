@@ -38,6 +38,7 @@ public class database extends SQLiteOpenHelper {
     public static final String COL_PRICE = "price";
     public static final String COL_QUANTITY = "quantity";
     public static final String COL_OVerQUANTITY = "total_quantity";
+    public static final String COL_CATEGORY = "category";
 
     // Checkout table columns
     public static final String COL_CHECKOUT_ID = "checkout_id";
@@ -84,6 +85,7 @@ public class database extends SQLiteOpenHelper {
                 + COL_PRICE + " FLOAT NOT NULL,"
                 + COL_QUANTITY + " INTEGER NOT NULL,"
                 + COL_OVerQUANTITY + " INTEGER NOT NULL,"
+                + COL_CATEGORY + " TEXT NOT NULL,"
                 + COL_PRODUCT_IMAGE + " BLOB,"
                 + "FOREIGN KEY(" + COL_USER_ID + ") REFERENCES "
                 + TABLE_USER + "(" + COL_USER_ID + ")"
@@ -158,7 +160,7 @@ public class database extends SQLiteOpenHelper {
 
     // Product methods
     public boolean add_product(String userId, String product_name, float product_price,
-                               int product_quantity, byte[] productImage) {
+                               int product_quantity, byte[] productImage, String category) {
         SQLiteDatabase db = null;
         Cursor cursor = getProduct();
 
@@ -195,6 +197,7 @@ public class database extends SQLiteOpenHelper {
             values.put(COL_PRICE, product_price);
             values.put(COL_QUANTITY, product_quantity);
             values.put(COL_OVerQUANTITY, product_quantity);
+            values.put(COL_CATEGORY, category);
 
             // Add the image if it exists
             if (productImage != null) {
@@ -219,8 +222,22 @@ public class database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(TABLE_PRODUCT,
                 new String[]{COL_PRODUCT_ID, COL_USER_ID, COL_PRODUCT_NAME,
-                        COL_PRICE, COL_QUANTITY, COL_OVerQUANTITY, COL_PRODUCT_IMAGE},
+                        COL_PRICE, COL_QUANTITY, COL_OVerQUANTITY, COL_CATEGORY, COL_PRODUCT_IMAGE},
                 null, null, null, null, null);
+    }
+
+    // Add new method to get products by category
+    public Cursor getProductsByCategory(String category) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (category == null || category.equals("All")) {
+            return getProduct();
+        }
+        return db.query(TABLE_PRODUCT,
+                new String[]{COL_PRODUCT_ID, COL_USER_ID, COL_PRODUCT_NAME,
+                        COL_PRICE, COL_QUANTITY, COL_OVerQUANTITY, COL_CATEGORY, COL_PRODUCT_IMAGE},
+                COL_CATEGORY + "=?",
+                new String[]{category},
+                null, null, null);
     }
 
     // Checkout methods
@@ -342,8 +359,7 @@ public class database extends SQLiteOpenHelper {
     }
 
     public Cursor getCheckoutItems() {
-        SQLiteDatabase db;
-        db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         return db.query(TABLE_CHECKOUT,
                 new String[]{
                         COL_CHECKOUT_ID,    // Primary key of checkout table
@@ -417,7 +433,7 @@ public class database extends SQLiteOpenHelper {
             values.put(COL_PRICE, product.getPrice());
             values.put(COL_QUANTITY, product.getQuantity());
             values.put(COL_OVerQUANTITY, product.getQuantity());
-
+            values.put(COL_CATEGORY, product.getCategory() != null ? product.getCategory() : "Uncategorized");
 
             int rowsUpdated = db.update(TABLE_PRODUCT, values,
                     COL_PRODUCT_ID + " = ?",
@@ -426,10 +442,26 @@ public class database extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            db.close();
         }
     }
 //
+public boolean update_checkout_from_edit(productobject product) {
+    SQLiteDatabase db = this.getWritableDatabase();
+    try {
+        ContentValues values = new ContentValues();
+        values.put(COL_PRICE, product.getPrice());
 
+
+        int rowsUpdated = db.update(TABLE_CHECKOUT, values,
+                COL_PRODUCT_ID + " = ?",
+                new String[]{product.getId()});
+        return rowsUpdated > 0;
+    } finally {
+        db.close();
+    }
+}
 
 
 
@@ -587,6 +619,50 @@ public class database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_PRODUCT + " WHERE " + COL_QUANTITY + " > 0";
         return db.rawQuery(query, null);
+    }
+
+    public boolean updateProductImage(String productId, byte[] newImage) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COL_PRODUCT_IMAGE, newImage);
+
+            int result = db.update(TABLE_PRODUCT, values,
+                    COL_PRODUCT_ID + " = ?",
+                    new String[]{productId});
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error updating product image", e);
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    // Add new method to handle database version upgrade with category
+    public void addCategoryColumnIfNeeded() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_PRODUCT + ")", null);
+            boolean hasCategory = false;
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    if (cursor.getString(1).equals(COL_CATEGORY)) {
+                        hasCategory = true;
+                        break;
+                    }
+                }
+                cursor.close();
+            }
+
+            if (!hasCategory) {
+                db.execSQL("ALTER TABLE " + TABLE_PRODUCT + " ADD COLUMN " + COL_CATEGORY + " TEXT DEFAULT 'Uncategorized'");
+            }
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error adding category column", e);
+        } finally {
+            db.close();
+        }
     }
 
 }

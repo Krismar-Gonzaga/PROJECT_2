@@ -52,8 +52,6 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
         if (image != null) {
             holder.productImage.setImageBitmap(image);
             holder.productImage.setVisibility(View.VISIBLE);
-        } else {
-            holder.productImage.setVisibility(View.GONE);
         }
 
         holder.addButton.setOnClickListener(v -> {
@@ -99,6 +97,8 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
 
             if (isAdded) {
                 Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
+                holder.addButton.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_light));
+
                 if (onCartUpdateListener != null) {
                     onCartUpdateListener.OntotalCartUpdate();
                 }

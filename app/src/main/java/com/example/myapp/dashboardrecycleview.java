@@ -119,25 +119,7 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                 productHolder.date.setText("Date: " + 
                     (currentProduct.getDate() != null ? currentProduct.getDate() : "No Date"));
 
-                // Handle delete action safely
-                productHolder.delete.setOnClickListener(v -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Delete Sold Product")
-                           .setMessage("Are you sure you want to delete this sold product?")
-                           .setPositiveButton("Delete", (dialog, which) -> {
-                                if (db != null && currentProduct.getId() != null) {
-                                    boolean deleted = db.delete_sold_product(currentProduct.getId());
-                                    if (deleted && TotalProfitUpdate != null) {
-                                        TotalProfitUpdate.Update_total_profit();
-                                        Toast.makeText(context, "Product deleted", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(context, "Failed to delete sold product!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                           })
-                           .setNegativeButton("Cancel", null)
-                           .show();
-                });
+
 
                 // Handle image safely
                 Bitmap image = currentProduct.getImage();
@@ -146,7 +128,6 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                     productHolder.productImage.setVisibility(View.VISIBLE);
                 } else {
                     productHolder.productImage.setImageResource(R.drawable.logo);
-                    productHolder.productImage.setVisibility(View.VISIBLE);
                 }
             }
         } catch (Exception e) {
@@ -194,7 +175,6 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             date = itemView.findViewById(R.id.date);
-            delete = itemView.findViewById(R.id.delete_sold_product);
             productImage = itemView.findViewById(R.id.dash_productImage);
             productname = itemView.findViewById(R.id.dash_productName);
             total_price = itemView.findViewById(R.id.dash_total_Price_sold);
