@@ -1,5 +1,6 @@
 package com.example.myapp;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,13 +9,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -24,14 +28,14 @@ import java.util.function.Consumer;
 
 public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    private static final int VIEW_TYPE_HEADER = 0;
-    private static final int VIEW_TYPE_PRODUCT = 1;
+    private static final int VIEW_TYPE_TRANSACTION = 0;
     private static final String TAG = "DashboardAdapter";
 
     private List<DashboardActivity.CheckoutGroup> checkoutGroups;
     private List<Object> displayItems = new ArrayList<>();
     Context context;
     private database db;
+    private int expandedPosition = -1;
 
     productobject product;
 
@@ -56,132 +60,103 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
     private void buildDisplayItems() {
         displayItems.clear();
         if (checkoutGroups != null) {
-            for (DashboardActivity.CheckoutGroup group : checkoutGroups) {
-                if (group != null && group.transactionId != null) {
-                    displayItems.add(group.transactionId);
-                    if (group.products != null) {
-                        displayItems.addAll(group.products);
-                    }
-                }
-            }
+            displayItems.addAll(checkoutGroups);
         }
         Log.d(TAG, "Built display items: " + displayItems.size() + " items");
     }
 
     @Override
     public int getItemViewType(int position) {
-        Object item = displayItems.get(position);
-        return (item instanceof String) ? VIEW_TYPE_HEADER : VIEW_TYPE_PRODUCT;
+        return VIEW_TYPE_TRANSACTION;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        if (viewType == VIEW_TYPE_HEADER) {
-            View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-            return new HeaderViewHolder(view);
-        } else {
-            View view = inflater.inflate(R.layout.item_dashboard_product, parent, false);
-            return new ProductViewHolder(view);
-        }
+        View view = LayoutInflater.from(context).inflate(R.layout.item_dashboard_product, parent, false);
+        return new TransactionViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         try {
-            if (getItemViewType(position) == VIEW_TYPE_HEADER) {
-                String transactionId = (String) displayItems.get(position);
-                if (transactionId != null) {
-                    ((HeaderViewHolder) holder).headerText.setText("Transaction ID: " + transactionId);
-                }
-            } else {
-                productobject currentProduct = (productobject) displayItems.get(position);
-                if (currentProduct == null) {
-                    Log.e(TAG, "Product at position " + position + " is null");
-                    return;
-                }
+            DashboardActivity.CheckoutGroup group = (DashboardActivity.CheckoutGroup) displayItems.get(position);
+            TransactionViewHolder viewHolder = (TransactionViewHolder) holder;
 
-                ProductViewHolder productHolder = (ProductViewHolder) holder;
-                
-                // Set text with null checks and proper formatting
-                productHolder.quantity.setText("Total Quantity: " + 
-                    (currentProduct.getQuantity() != null ? currentProduct.getQuantity() : "0"));
-                
-                // Format total price with currency
-                String totalPrice = currentProduct.getTotal_price() != null ? 
-                    String.format("₱%.2f", Float.parseFloat(currentProduct.getTotal_price())) : "₱0.00";
-                productHolder.total_price.setText("Total Price: " + totalPrice);
-                
-                productHolder.productname.setText(currentProduct.getName() != null ? 
-                    currentProduct.getName() : "Unknown Product");
-                
-                productHolder.date.setText("Date: " + 
-                    (currentProduct.getDate() != null ? currentProduct.getDate() : "No Date"));
+            // Set transaction summary data
+            viewHolder.transactionId.setText("Transaction ID: " + group.transactionId);
+            viewHolder.date.setText("Date: " + (group.products != null && !group.products.isEmpty() ? 
+                group.products.get(0).getDate() : "N/A"));
 
-
-
-                // Handle image safely
-                Bitmap image = currentProduct.getImage();
-                if (image != null && !image.isRecycled()) {
-                    productHolder.productImage.setImageBitmap(image);
-                    productHolder.productImage.setVisibility(View.VISIBLE);
-                } else {
-                    productHolder.productImage.setImageResource(R.drawable.logo);
+            // Calculate total amount for the transaction
+            float totalAmount = 0;
+            if (group.products != null) {
+                for (productobject product : group.products) {
+                    if (product.getTotal_price() != null) {
+                        totalAmount += Float.parseFloat(product.getTotal_price());
+                    }
                 }
             }
+            viewHolder.totalAmount.setText(String.format("Total Amount: ₱%.2f", totalAmount));
+
+            // Handle expansion state
+            boolean isExpanded = position == expandedPosition;
+            viewHolder.productDetails.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+            // Animate the expand icon
+            float targetRotation = isExpanded ? 180f : 0f;
+            if (viewHolder.expandIcon.getRotation() != targetRotation) {
+                ObjectAnimator rotation = ObjectAnimator.ofFloat(viewHolder.expandIcon, "rotation", viewHolder.expandIcon.getRotation(), targetRotation);
+                rotation.setDuration(300);
+                rotation.setInterpolator(new AccelerateDecelerateInterpolator());
+                rotation.start();
+            }
+
+            // Set up click listener for expansion
+            viewHolder.transactionSummary.setOnClickListener(v -> {
+                int oldExpandedPosition = expandedPosition;
+                expandedPosition = isExpanded ? -1 : position;
+                
+                if (oldExpandedPosition >= 0) {
+                    notifyItemChanged(oldExpandedPosition);
+                }
+                notifyItemChanged(position);
+            });
+
+            // Set up products RecyclerView if expanded
+            if (isExpanded && group.products != null && !group.products.isEmpty()) {
+                viewHolder.productsRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+                SoldProductsAdapter productsAdapter = new SoldProductsAdapter(context, group.products);
+                viewHolder.productsRecyclerView.setAdapter(productsAdapter);
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "Error binding view holder: " + e.getMessage());
         }
-    }
-
-    // Helper method to find the header position for a given product position
-    private int findHeaderPosition(int productPosition) {
-        for (int i = productPosition; i >= 0; i--) {
-            if (getItemViewType(i) == VIEW_TYPE_HEADER) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    // Helper method to check if a header has no products under it
-    private boolean isHeaderEmpty(int headerPosition) {
-        // If header is the last item, it's empty
-        if (headerPosition == displayItems.size() - 1) return true;
-
-        // Check if the next item is another header (meaning no products under this one)
-        return getItemViewType(headerPosition + 1) == VIEW_TYPE_HEADER;
     }
 
     @Override
     public int getItemCount() {
         return displayItems.size();
     }
-    
 
-    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView headerText;
-        public HeaderViewHolder(@NonNull View itemView) {
-            super(itemView);
-            headerText = itemView.findViewById(android.R.id.text1);
-        }
-    }
+    public static class TransactionViewHolder extends RecyclerView.ViewHolder {
+        TextView transactionId, date, totalAmount;
+        ImageView expandIcon;
+        LinearLayout transactionSummary, productDetails;
+        RecyclerView productsRecyclerView;
 
-    public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productname, quantity, total_price, date;
-        ImageView productImage;
-        Button delete;
-        public ProductViewHolder(@NonNull View itemView) {
+        public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
+            transactionId = itemView.findViewById(R.id.transactionId);
             date = itemView.findViewById(R.id.date);
-            productImage = itemView.findViewById(R.id.dash_productImage);
-            productname = itemView.findViewById(R.id.dash_productName);
-            total_price = itemView.findViewById(R.id.dash_total_Price_sold);
-            quantity = itemView.findViewById(R.id.sold_quantity);
+            totalAmount = itemView.findViewById(R.id.totalAmount);
+            expandIcon = itemView.findViewById(R.id.expandIcon);
+            transactionSummary = itemView.findViewById(R.id.transactionSummary);
+            productDetails = itemView.findViewById(R.id.productDetails);
+            productsRecyclerView = itemView.findViewById(R.id.productsRecyclerView);
         }
     }
-
 
     private void showDeleteConfirmationDialog(Consumer<Boolean> callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -193,6 +168,4 @@ public class dashboardrecycleview extends RecyclerView.Adapter<RecyclerView.View
                     .show();
         }
     }
-
-
 }
