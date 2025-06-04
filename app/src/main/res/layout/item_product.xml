@@ -88,9 +88,9 @@
                 android:contentDescription="@string/action_sign_in"
                 app:fabSize="mini"
                 app:tint="@android:color/white"
-                app:backgroundTint="#33C458"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

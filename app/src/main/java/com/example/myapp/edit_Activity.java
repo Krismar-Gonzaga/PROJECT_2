@@ -60,7 +60,7 @@ public class edit_Activity extends Fragment {
         EditText price = view.findViewById(R.id.editprice);
         EditText quantity = view.findViewById(R.id.editquantity);
         Button btnSave = view.findViewById(R.id.btneditItem);
-        ImageView backbtn = view.findViewById(R.id.edit_to_inventory);
+
         categorySpinner = view.findViewById(R.id.categorySpinner);
 
         // Set up category spinner with custom adapter
@@ -148,32 +148,7 @@ public class edit_Activity extends Fragment {
             }
         });
 
-        backbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    // Check if the context is an Activity that can handle fragments
-                    if (getContext() instanceof AppCompatActivity) {
-                        AppCompatActivity activity = (AppCompatActivity) getContext();
 
-                        // Check if there are fragments in the back stack
-                        if (activity.getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                            activity.getSupportFragmentManager().popBackStack();
-                        } else {
-                            // If no fragments in back stack, just finish the activity
-                            activity.finish();
-                        }
-                    } else {
-                        // If context is not an Activity, try to finish it if it is one
-                        if (getContext() instanceof Activity) {
-                            ((Activity) getContext()).finish();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         return view;
     }

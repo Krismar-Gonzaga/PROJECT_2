@@ -66,25 +66,30 @@
         </LinearLayout>
 
         <!-- Product Details (Expandable) -->
-        <LinearLayout
-            android:id="@+id/productDetails"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/productsRecyclerView"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:id="@+id/productDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:background="#F8F8F8"/>
+                android:orientation="vertical"
+                android:visibility="gone">
 
-        </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E0E0E0"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/productsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:background="#F8F8F8"/>
+
+            </LinearLayout>
+        </ScrollView>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

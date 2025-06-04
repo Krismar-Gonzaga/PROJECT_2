@@ -44,6 +44,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     private ArrayList<productobject> Product = new ArrayList<>();
     private OnviewAnalytics onviewAnalytics;
     private String total_sold;
+    private User currentUser;
 
     // Grouped data structure for dashboard
     public static class CheckoutGroup {
@@ -56,9 +57,10 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     }
     private ArrayList<CheckoutGroup> checkoutGroups = new ArrayList<>();
 
-    public static DashboardActivity newInstance(OnviewAnalytics listener) {
+    public static DashboardActivity newInstance(OnviewAnalytics listener, User currentUser) {
         DashboardActivity fragment = new DashboardActivity();
         fragment.onviewAnalytics = listener;
+        fragment.currentUser = currentUser;
         return fragment;
     }
 
@@ -105,6 +107,8 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
             checkoutGroups.clear();
 
+
+
             // Initialize views
             if (!initializeViews(view)) {
                 Log.e(TAG, "Failed to initialize views");
@@ -114,6 +118,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
             // Load and display data
             loadDashboardData();
+
 
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreateView: " + e.getMessage(), e);
@@ -144,6 +149,10 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
             // Setup FloatingActionButton
             FloatingActionButton fabAnalytics = view.findViewById(R.id.fabAnalytics);
+            // check if the current user is Admin and can view the analytics
+            if (currentUser.getType().equals("user")){
+                fabAnalytics.setVisibility(View.GONE);
+            }
             if (fabAnalytics != null && onviewAnalytics != null) {
                 fabAnalytics.setOnClickListener(v -> {
                     if (onviewAnalytics != null) {

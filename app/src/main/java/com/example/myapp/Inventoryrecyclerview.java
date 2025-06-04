@@ -95,7 +95,7 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
         currentImagePosition = position;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Update Product Image")
-                .setItems(new CharSequence[]{"Take Photo", "Choose from Gallery"}, (dialog, which) -> {
+                .setItems(new CharSequence[]{"Choose from Gallery"}, (dialog, which) -> {
                     if (context instanceof FragmentActivity) {
                         FragmentActivity activity = (FragmentActivity) context;
                         Fragment fragment = activity.getSupportFragmentManager()
@@ -104,8 +104,6 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
                         if (fragment instanceof Inventory) {
                             Inventory inventoryFragment = (Inventory) fragment;
                             if (which == 0) {
-                                inventoryFragment.launchCamera();
-                            } else {
                                 inventoryFragment.launchGallery();
                             }
                         } else {

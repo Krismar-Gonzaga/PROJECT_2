@@ -67,7 +67,7 @@ public class Profile_activity extends Fragment {
             Username.setText("User Name: " + currentUser.getName());
             Useremail.setText("Email: " + currentUser.getEmailAddress());
             Userstarted.setText("Started: " + currentUser.getStarted());
-            
+
             // Load existing avatar if any
             loadUserAvatar();
         } else {
@@ -88,9 +88,9 @@ public class Profile_activity extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == android.app.Activity.RESULT_OK 
-            && data != null && data.getData() != null) {
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == android.app.Activity.RESULT_OK
+                && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
@@ -98,7 +98,7 @@ public class Profile_activity extends Fragment {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);
                 byte[] byteArray = stream.toByteArray();
-                
+
                 // Update database
                 if (currentUser != null && dbHelper.updateUserAvatar(String.valueOf(currentUser.getId()), byteArray)) {
                     // Update ImageView

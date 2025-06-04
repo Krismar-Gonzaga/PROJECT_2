@@ -1,5 +1,7 @@
 package com.example.myapp;
 
+import static android.content.Intent.getIntent;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,8 +17,9 @@ public class NotificationHelper {
     private static final String CHANNEL_NAME = "Low Stock Notifications";
     private static final int NOTIFICATION_ID = 1;
 
+
     @SuppressLint("NotificationPermission")
-    public static void showLowStockNotification(Context context, int lowStockCount) {
+    public static void showLowStockNotification(Context context, int lowStockCount, User currentUser,OnMenuVisibility MenuVisibility) {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -29,9 +32,14 @@ public class NotificationHelper {
             notificationManager.createNotificationChannel(channel);
         }
 
-        // Create intent to open the app when notification is clicked
-        Intent intent = new Intent(context, Inventory.class);
-        intent.putExtra("open_fragment", "low_stock");
+        // Create intent that will always go to homeactivity
+        Intent intent = new Intent(context, homeactivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("OPEN_FRAGMENT", "notification");
+        intent.putExtra("CURRENT_USER", currentUser);
+        intent.putExtra("low_stock_count", lowStockCount);
+        MenuVisibility.UpdateMenuVisibility();
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
                 0,
@@ -45,6 +53,7 @@ public class NotificationHelper {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
 
         notificationManager.notify(NOTIFICATION_ID, notification);

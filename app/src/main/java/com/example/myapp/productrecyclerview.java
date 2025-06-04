@@ -17,7 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class productrecyclerview extends RecyclerView.Adapter<productrecyclerview.ViewHolder> implements OntotalCartUpdated{
+public class productrecyclerview extends RecyclerView.Adapter<productrecyclerview.ViewHolder> implements OntotalCartUpdated {
 
     private List<productobject> productObjects;
     private Context context;
@@ -54,6 +54,12 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
             holder.productImage.setVisibility(View.VISIBLE);
         }
 
+        // Check if product is already in cart
+        boolean isInCart = isProductInCart(product.getId());
+
+        // Set button color based on cart status
+        updateButtonColor(holder.addButton, isInCart);
+
         holder.addButton.setOnClickListener(v -> {
             // Convert image to byte array if available
             byte[] imageBytes = null;
@@ -62,18 +68,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
             }
 
             // Check if product is already in cart and if so, get its quantity
-            int cartQty = 0;
-            Cursor cartCursor = checkoutdb.getCheckoutItems();
-            if (cartCursor != null) {
-                while (cartCursor.moveToNext()) {
-                    String cartProductId = cartCursor.getString(1); // product_id
-                    if (cartProductId.equals(product.getId())) {
-                        cartQty = Integer.parseInt(cartCursor.getString(4)); // quantity in cart
-                        break;
-                    }
-                }
-                cartCursor.close();
-            }
+            int cartQty = getCartQuantity(product.getId());
             int stockQty = 0;
             try {
                 stockQty = Integer.parseInt(product.getQuantity());
@@ -97,15 +92,56 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
 
             if (isAdded) {
                 Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
-                holder.addButton.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_light));
+                updateButtonColor(holder.addButton, true);
 
                 if (onCartUpdateListener != null) {
                     onCartUpdateListener.OntotalCartUpdate();
                 }
+                notifyDataSetChanged(); // Refresh the entire list to update all buttons
             } else {
                 Toast.makeText(context, "Product already in cart!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean isProductInCart(String productId) {
+        Cursor cartCursor = checkoutdb.getCheckoutItems();
+        boolean isInCart = false;
+        if (cartCursor != null) {
+            while (cartCursor.moveToNext()) {
+                String cartProductId = cartCursor.getString(1); // product_id
+                if (cartProductId.equals(productId)) {
+                    isInCart = true;
+                    break;
+                }
+            }
+            cartCursor.close();
+        }
+        return isInCart;
+    }
+
+    private int getCartQuantity(String productId) {
+        Cursor cursor = checkoutdb.getCheckoutItems();
+        int cartQty = 0;
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String cartProductId = cursor.getString(1); // product_id
+                if (cartProductId.equals(productId)) {
+                    cartQty = Integer.parseInt(cursor.getString(4)); // quantity in cart
+                    break;
+                }
+            }
+            cursor.close();
+        }
+        return cartQty;
+    }
+
+    private void updateButtonColor(ImageView button, boolean isInCart) {
+        if (isInCart) {
+            button.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+        } else {
+            button.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_light));
+        }
     }
 
     @Override
@@ -115,11 +151,11 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
 
     @Override
     public void OntotalCartUpdate() {
-
+        notifyDataSetChanged(); // Refresh the entire list when cart is updated
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPrice ,quantity;
+        TextView tvName, tvPrice, quantity;
         ImageView addButton, productImage;
 
         public ViewHolder(@NonNull View itemView) {

@@ -30,7 +30,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class homeactivity extends AppCompatActivity implements OnlowStockchecker, OntotalCartUpdated, OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics {
+public class homeactivity extends AppCompatActivity implements OnlowStockchecker, OntotalCartUpdated, OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics, OnMenuVisibility {
 
     // Views
     private TextView cartBadge, PageName;
@@ -57,16 +57,29 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
         // Get current user from intent
         currentUser = getIntent().getParcelableExtra("CURRENT_USER");
+
         if (currentUser == null) {
-            Toast.makeText(this, "User data missing", Toast.LENGTH_SHORT).show();
+            // If no user is logged in, redirect to login
+            Intent loginIntent = new Intent(this, Login.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            // Pass along any notification intent extras
+            if (getIntent().hasExtra("OPEN_FRAGMENT")) {
+                loginIntent.putExtra("REDIRECT_TO_NOTIFICATION", true);
+            }
+            startActivity(loginIntent);
             finish();
             return;
         }
+
+        // Update menu visibility based on user type
+        updateMenuVisibility();
+
         floatingActionButton.show();
 
         // Setup database
         db = new database(this);
         checkoutdb = new database(this);
+        
         // Setup fragment listener for FAB visibility
         setupFragmentListener();
 
@@ -80,27 +93,48 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         // Setup navigation drawer
         setupNavigationDrawer();
 
-
-
-        DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, dashboardFragment)
-                .addToBackStack("dashboard")
-                .commit();
-        PageName.setText("Dashboard");
-
-        // Hide 'Logs' menu item for non-admin users
-        if (!currentUser.getType().equals("admin")) {
-            navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
-            navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(false);
+        // Check if we should open notification fragment
+        if (getIntent().hasExtra("OPEN_FRAGMENT")) {
+            String fragmentToOpen = getIntent().getStringExtra("OPEN_FRAGMENT");
+            if ("notification".equals(fragmentToOpen)) {
+                navigateToNotification();
+            } else {
+                // Default to dashboard
+                openDashboard();
+            }
+        } else {
+            // Default to dashboard
+            openDashboard();
         }
-        if (currentUser.getType().equals("user")){
-            dashboard.setVisibility(INVISIBLE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateMenuVisibility();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        
+        // Update current user from intent if available
+        User newUser = intent.getParcelableExtra("CURRENT_USER");
+        if (newUser != null) {
+            currentUser = newUser;
         }
-
-
-
+        
+        // Always update menu visibility
+        updateMenuVisibility();
+        
+        // Handle notification intent
+        if (intent.hasExtra("OPEN_FRAGMENT")) {
+            String fragmentToOpen = intent.getStringExtra("OPEN_FRAGMENT");
+            if ("notification".equals(fragmentToOpen)) {
+                navigateToNotification();
+            }
+        }
     }
 
     private void initViews() {
@@ -208,7 +242,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         dashboard.setOnClickListener(v -> {
             if (currentUser != null) {
                 try {
-                    DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
+                    DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, dashboardFragment)
@@ -270,6 +304,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         LogManager.getInstance(getApplicationContext()).log("User logged out: " + (currentUser != null ? currentUser.getEmailAddress() : "unknown"));
         SharedPreferences preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         preferences.edit().clear().apply();
+        currentUser = null;
 
         Intent intent = new Intent(this, Login.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -356,7 +391,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             }
         } else {
             // If we're at the root of the back stack, show the Dashboard
-            DashboardActivity dashboardFragment = DashboardActivity.newInstance(this);
+            DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
             fragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, dashboardFragment)
@@ -453,7 +488,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 if (count > 0) {
                     badge.setVisibility(View.VISIBLE);
                     badge.setText(String.valueOf(count));
-                    NotificationHelper.showLowStockNotification(this, count);
+                    NotificationHelper.showLowStockNotification(this, count,currentUser,this);
                 } else {
                     badge.setVisibility(View.GONE);
                 }
@@ -478,5 +513,52 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     @Override
     public void checklowstock() {
         checkLowStock();
+    }
+
+    private void openDashboard() {
+        DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, dashboardFragment)
+                .addToBackStack("dashboard")
+                .commit();
+        PageName.setText("Dashboard");
+    }
+
+    private void navigateToNotification() {
+        // Update menu visibility before showing notification fragment
+        updateMenuVisibility();
+        
+        PageName.setText("Notification");
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new LowStockFragment(this))
+                .addToBackStack("notification")
+                .commit();
+    }
+
+    @Override
+    public void UpdateMenuVisibility() {
+        // Ensure we're on the main thread when updating UI
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateMenuVisibility();
+            }
+        });
+    }
+
+    private void updateMenuVisibility() {
+        if (currentUser != null) {
+            if ("user".equals(currentUser.getType())) {
+                navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
+                navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(false);
+                dashboard.setVisibility(INVISIBLE);
+            } else if ("admin".equals(currentUser.getType())) {
+                navigationView.getMenu().findItem(R.id.nav_logs).setVisible(true);
+                navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(true);
+                dashboard.setVisibility(VISIBLE);
+            }
+        }
     }
 }

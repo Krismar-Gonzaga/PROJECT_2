@@ -40,7 +40,7 @@ public class product extends Fragment {
     private EditText product_name;
     private EditText product_price;
     private EditText product_quantity;
-    private ImageView backbtn;
+
     private Button uploadImage;
     private Button add_button;
     private ImageView productImageView;
@@ -108,7 +108,7 @@ public class product extends Fragment {
         db = new database(requireContext());
 
         // Initialize views
-        backbtn = view.findViewById(R.id.add_to_home);
+
         product_name = view.findViewById(R.id.name);
         product_price = view.findViewById(R.id.price);
         product_quantity = view.findViewById(R.id.quantity);
@@ -166,7 +166,7 @@ public class product extends Fragment {
 
         add_button.setOnClickListener(v -> saveProduct());
 
-        backbtn.setOnClickListener(v -> navigateBack());
+
 
         return view;
     }

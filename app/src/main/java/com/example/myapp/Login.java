@@ -74,6 +74,12 @@ public class Login extends AppCompatActivity {
                             // Redirect to DashboardActivity instead of homeactivity
                             Intent intent = new Intent(Login.this, homeactivity.class);
                             intent.putExtra("CURRENT_USER", currentUser);
+                            
+                            // Check if we need to redirect to notification
+                            if (getIntent().getBooleanExtra("REDIRECT_TO_NOTIFICATION", false)) {
+                                intent.putExtra("OPEN_FRAGMENT", "notification");
+                            }
+                            
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                             finish(); // Close the login activity
