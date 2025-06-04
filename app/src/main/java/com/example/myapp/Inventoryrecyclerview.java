@@ -128,6 +128,7 @@ public class Inventoryrecyclerview extends RecyclerView.Adapter<Inventoryrecycle
             // Convert Bitmap to byte array and update database
             byte[] imageBytes = BitmapUtils.bitmapToByteArray(scaledImage);
             boolean success = db.updateProductImage(productId, imageBytes);
+            db.updateCheckoutProductImage(productId,imageBytes);
             
             if (success) {
                 notifyItemChanged(currentImagePosition);

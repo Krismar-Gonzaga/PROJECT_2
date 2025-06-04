@@ -43,7 +43,7 @@ public class database extends SQLiteOpenHelper {
     // Checkout table columns
     public static final String COL_CHECKOUT_ID = "checkout_id";
     public static final String COL_TOTAL_PRICE = "total_price";
-    private static final String COL_PRODUCT_IMAGE = "product_image";
+    public static final String COL_PRODUCT_IMAGE = "product_image";
 
 
     public static final int LOW_STOCK_THRESHOLD = 5;
@@ -452,6 +452,7 @@ public boolean update_checkout_from_edit(productobject product) {
     try {
         ContentValues values = new ContentValues();
         values.put(COL_PRICE, product.getPrice());
+        values.put(COL_PRODUCT_NAME,product.getName());
 
 
         int rowsUpdated = db.update(TABLE_CHECKOUT, values,
@@ -619,6 +620,24 @@ public boolean update_checkout_from_edit(productobject product) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_PRODUCT + " WHERE " + COL_QUANTITY + " > 0";
         return db.rawQuery(query, null);
+    }
+
+    public boolean updateCheckoutProductImage(String productId, byte[] newImage) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COL_PRODUCT_IMAGE, newImage);
+
+            int result = db.update(TABLE_CHECKOUT, values,
+                    COL_PRODUCT_ID + " = ?",
+                    new String[]{productId});
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error updating product image", e);
+            return false;
+        } finally {
+            db.close();
+        }
     }
 
     public boolean updateProductImage(String productId, byte[] newImage) {

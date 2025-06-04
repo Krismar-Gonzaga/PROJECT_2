@@ -190,7 +190,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             }else if (id == R.id.action_low_stock){
                 PageName.setText("Notification");
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new LowStockFragment())
+                        .replace(R.id.fragment_container, new LowStockFragment(this))
                         .addToBackStack(null)
                         .commit();
 
@@ -469,7 +469,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_low_stock) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new LowStockFragment())
+                    .replace(R.id.fragment_container, new LowStockFragment(this))
                     .addToBackStack(null)
                     .commit();
             return true;

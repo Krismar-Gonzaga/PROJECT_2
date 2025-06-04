@@ -14,11 +14,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class LowStockFragment extends Fragment {
+public class LowStockFragment extends Fragment implements OnEditProductClickListener {
+    private OnEditProductClickListener parentEditListener;
     private database dbHelper;
     private RecyclerView recyclerView;
     private LowStockAdapter adapter;
     private TextView emptyView;
+
+    public LowStockFragment(OnEditProductClickListener editProduct){
+        this.parentEditListener = editProduct;
+    }
 
     @Nullable
     @Override
@@ -44,9 +49,16 @@ public class LowStockFragment extends Fragment {
             recyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
 
-            adapter = new LowStockAdapter(getActivity(), cursor);
+            adapter = new LowStockAdapter(getActivity(), cursor, this);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
+        }
+    }
+
+    @Override
+    public void onEditProduct(productobject product) {
+        if (parentEditListener != null) {
+            parentEditListener.onEditProduct(product);
         }
     }
 
