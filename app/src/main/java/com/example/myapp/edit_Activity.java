@@ -195,13 +195,13 @@ public class edit_Activity extends Fragment {
                     byte[] imageBytes = cursor.getBlob(6); // Assuming image is at index 6
                     Bitmap productImage = null;
 
-                    String category = cursor.getString(7);
+
 
                     if (imageBytes != null) {
                         productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                     }
 
-                    productobject product = new productobject(productid, name, price, total_price, quantity, quantity, productImage, "",category);
+                    productobject product = new productobject(productid, name, price, total_price, quantity, quantity, productImage, "","");
                     return product;
                 }
             }
