@@ -240,7 +240,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         ArrayList<productobject> cartItems = new ArrayList<>();
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-                byte[] imageBytes = cursor.getBlob(6); // Assuming image is at index 6
+                byte[] imageBytes = cursor.getBlob(7); // Assuming image is at index 6
                 Bitmap productImage = null;
 
                 if (imageBytes != null) {
@@ -250,9 +250,9 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         cursor.getString(1),  // id
                         cursor.getString(2),  // name
                         cursor.getString(3),  // price
+                        cursor.getString(6),
+                        cursor.getString(4),
                         cursor.getString(5),
-                        cursor.getString(4),
-                        cursor.getString(4),
                         productImage,
                         "",
                         ""
@@ -273,17 +273,18 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                 String name = cursor.getString(2);
                 String price = cursor.getString(3);
                 String quantity = cursor.getString(4);
-                String total_price = cursor.getString(5);
+                String available = cursor.getString(5);
+                String total_price = cursor.getString(6);
 
                 // Get the image blob from cursor
-                byte[] imageBytes = cursor.getBlob(6); // Assuming image is at index 6
+                byte[] imageBytes = cursor.getBlob(7); // Assuming image is at index 6
                 Bitmap productImage = null;
 
                 if (imageBytes != null) {
                     productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 }
 
-                productobject product = new productobject(id, name, price, total_price,quantity, quantity, productImage, "","");
+                productobject product = new productobject(id, name, price, total_price,quantity, available, productImage, "","");
                 Cart_Product.add(product);
             }
         }

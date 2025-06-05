@@ -364,6 +364,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
     public int getTotalOncartProduct(){
         Cursor cursor = db.getCheckoutItems();
         int total_product = 0;
+
         while (cursor.moveToNext()){
             total_product += 1;
         }

@@ -56,17 +56,34 @@
 
                 <!-- Camera Icon Overlay -->
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="360dp"
+                android:layout_height="50dp"
+                android:gravity="center">
+                <!-- User Name -->
+                <TextView
+                    android:id="@+id/Username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="User Name"
+                    android:textColor="#222"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="5dp" />
+                <ImageView
+                    android:id="@+id/editname"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_edit"
+                    app:tint="#455A64" />
+            </LinearLayout>
 
-            <!-- User Name -->
-            <TextView
-                android:id="@+id/Username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="User Name"
-                android:textColor="#222"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
 
             <!-- Divider -->
             <View
@@ -75,16 +92,33 @@
                 android:background="#76C043"
                 android:layout_marginTop="12dp"
                 android:layout_gravity="center_horizontal" />
+            <LinearLayout
+                android:layout_width="360dp"
+                android:layout_height="50dp"
+                android:gravity="center">
+                <!-- Email -->
+                <TextView
+                    android:id="@+id/User_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email: "
+                    android:textColor="#444"
+                    android:textSize="16sp"
+                    android:layout_marginTop="10dp" />
+                <ImageView
+                    android:id="@+id/editEmail"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_edit"
+                    app:tint="#455A64" />
+            </LinearLayout>
 
-            <!-- Email -->
-            <TextView
-                android:id="@+id/User_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Email: "
-                android:textColor="#444"
-                android:textSize="16sp"
-                android:layout_marginTop="18dp" />
 
 
             <!-- Started Since -->

@@ -164,10 +164,11 @@ public class edit_Activity extends Fragment {
                     String name = cursor.getString(2);
                     String price = cursor.getString(3);
                     String quantity = cursor.getString(4);
-                    String total_price = cursor.getString(5);
+                    String available = cursor.getString(5);
+                    String total_price = cursor.getString(6);
 
                     // Get the image blob from cursor
-                    byte[] imageBytes = cursor.getBlob(6); // Assuming image is at index 6
+                    byte[] imageBytes = cursor.getBlob(7); // Assuming image is at index 6
                     Bitmap productImage = null;
 
 
@@ -176,7 +177,7 @@ public class edit_Activity extends Fragment {
                         productImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                     }
 
-                    productobject product = new productobject(productid, name, price, total_price, quantity, quantity, productImage, "","");
+                    productobject product = new productobject(productid, name, price, total_price, quantity, available, productImage, "","");
                     return product;
                 }
             }

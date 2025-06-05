@@ -103,6 +103,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
                         product.getName(),
                         product.getPrice(),
                         "1", // Default quantity
+                        product.getQuantity(),
                         product.getPrice(), // Total price (price * quantity)
                         imageBytes
                 );
@@ -119,6 +120,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
                 }
             }
         });
+
         updateCartIndicator(holder, product.getId(), cartQuantity + 1);
     }
 

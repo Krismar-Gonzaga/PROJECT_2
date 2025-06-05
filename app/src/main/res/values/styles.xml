@@ -9,4 +9,43 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
     </style>
+
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Your existing theme attributes -->
+    </style>
+
+    <!-- Dialog theme overlay -->
+    <style name="ThemeOverlay.MaterialComponents.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <!-- Primary color for dialog buttons -->
+        <item name="colorPrimary">@color/dark_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Background color -->
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <!-- Text appearance -->
+        <item name="textAppearanceBody2">@style/TextAppearance.App.Body2</item>
+
+        <!-- Button styles -->
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+
+        <!-- Dialog corner radius -->
+        <item name="dialogCornerRadius">12dp</item>
+    </style>
+
+    <!-- Text appearance -->
+    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/textColorPrimary</item>
+
+    </style>
+
+    <!-- Button style -->
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/dark_green</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+
 </resources>

@@ -44,6 +44,7 @@ public class database extends SQLiteOpenHelper {
     public static final String COL_CHECKOUT_ID = "checkout_id";
     public static final String COL_TOTAL_PRICE = "total_price";
     public static final String COL_PRODUCT_IMAGE = "product_image";
+    public static final String COL_AVAILABLE = "available_item";
 
 
     public static final int LOW_STOCK_THRESHOLD = 5;
@@ -99,6 +100,7 @@ public class database extends SQLiteOpenHelper {
                 + COL_PRODUCT_NAME + " TEXT NOT NULL,"
                 + COL_PRICE + " FLOAT NOT NULL,"
                 + COL_QUANTITY + " INTEGER NOT NULL,"
+                + COL_AVAILABLE + " INTEGER NOT NULL,"
                 + COL_TOTAL_PRICE + " FLOAT NOT NULL,"
                 + COL_PRODUCT_IMAGE + " BLOB,"
                 + "FOREIGN KEY(" + COL_PRODUCT_ID + ") REFERENCES "
@@ -242,7 +244,7 @@ public class database extends SQLiteOpenHelper {
 
     // Checkout methods
     public boolean add_checkoutproduct(String productId, String product_name,
-                                       String product_price, String product_quantity,
+                                       String product_price, String product_quantity, String available,
                                        String total_price, byte[] productImage) {
         SQLiteDatabase db = null;
         Cursor cursor = null;
@@ -268,6 +270,7 @@ public class database extends SQLiteOpenHelper {
             values.put(COL_PRODUCT_NAME, product_name);
             values.put(COL_PRICE, product_price);
             values.put(COL_QUANTITY, product_quantity);
+            values.put(COL_AVAILABLE, available);
             values.put(COL_TOTAL_PRICE, total_price);
 
             // Add product image if available
@@ -367,6 +370,7 @@ public class database extends SQLiteOpenHelper {
                         COL_PRODUCT_NAME,   // Product name
                         COL_PRICE,          // Unit price
                         COL_QUANTITY,       // Quantity in cart
+                        COL_AVAILABLE,
                         COL_TOTAL_PRICE,    // price * quantity
                         COL_PRODUCT_IMAGE   // Product image
                 },
@@ -625,6 +629,42 @@ public boolean update_checkout_from_edit(productobject product) {
             cursor.close();
         }
         return avatar;
+    }
+
+    public boolean updatedusername(String userid, String UpdatedName){
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COL_USERNAME, UpdatedName);
+
+            int result = db.update(TABLE_USER, values,
+                    COL_USER_ID + " = ?",
+                    new String[]{userid});
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error updating user avatar", e);
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    public boolean updatedUserEmail(String userid, String UpdatedEmail){
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COL_EMAIL, UpdatedEmail);
+
+            int result = db.update(TABLE_USER, values,
+                    COL_USER_ID + " = ?",
+                    new String[]{userid});
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Error updating user avatar", e);
+            return false;
+        } finally {
+            db.close();
+        }
     }
 
     // Add this method to get available products

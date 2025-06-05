@@ -7,10 +7,13 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,6 +23,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.widget.Toast;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 
@@ -57,6 +64,8 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
         holder.productprice.setText("₱ " + cart_product.get(position).getPrice());
         holder.total_price.setText("Total: ₱ " + cart_product.get(position).getTotal_price());
         holder.total_quantity.setText(cart_product.get(position).getQuantity());
+        String  availablequantity = cart_product.get(position).getOverquantity();
+        holder.availableQuantity.setText("Available: " + availablequantity);
 
         Bitmap image = cart_product.get(position).getImage();
         if (image != null) {
@@ -170,61 +179,93 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
 
 
     private void showQuantityEditDialog(int position, ViewHolder holder) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Edit Quantity");
+        // Create custom dialog layout
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_quantity, null);
 
-        final EditText input = new EditText(context);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setText(cart_product.get(position).getQuantity());
-        builder.setView(input);
+// Initialize views
+        TextInputLayout quantityInputLayout = dialogView.findViewById(R.id.quantityInputLayout);
+        TextInputEditText quantityEditText = dialogView.findViewById(R.id.quantityEditText);
+        TextView stockInfo = dialogView.findViewById(R.id.stockInfo);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newQuantityStr = input.getText().toString();
-                if (!newQuantityStr.isEmpty()) {
-                    int newQuantity = Integer.parseInt(newQuantityStr);
-                    productobject currentProduct = getcurrentProduct(cart_product.get(position));
+// Set current quantity and stock info
+        quantityEditText.setText(cart_product.get(position).getQuantity());
+        productobject currentProduct = getcurrentProduct(cart_product.get(position));
+        int maxQuantity = currentProduct != null ? Integer.parseInt(currentProduct.getQuantity()) : 0;
+        stockInfo.setText(context.getString(R.string.max_quantity_available, maxQuantity));
 
-                    if (currentProduct == null) {
-                        Toast.makeText(context, "Product not found", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+// Create the dialog
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(
+                context,
+                R.style.ThemeOverlay_MaterialComponents_Dialog
+        )
+                .setTitle("Edit Quantity")
+                .setView(dialogView)
+                .setPositiveButton("Update", null) // Set to null to override default behavior
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-                    int maxQuantity = Integer.parseInt(currentProduct.getQuantity());
-                    if (newQuantity > maxQuantity) {
-                        Toast.makeText(context, "Quantity exceeds available stock", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(view -> {
+                String newQuantityStr = quantityEditText.getText().toString().trim();
 
-                    if (newQuantity > 0) {
-                        productobject product = cart_product.get(position);
-                        float pricePerUnit = Float.parseFloat(product.getPrice());
-                        float newTotal = pricePerUnit * newQuantity;
-
-                        product.setQuantity(String.valueOf(newQuantity));
-                        product.setTotal_price(String.valueOf(newTotal));
-
-                        holder.total_quantity.setText(String.valueOf(newQuantity));
-                        holder.total_price.setText("₱ " + newTotal);
-
-                        checkoutdb.updatecheckout(product.getId(), String.valueOf(newQuantity), String.valueOf(newTotal));
-                        cartUpdateListener.onCartUpdated();
-                    } else {
-                        Toast.makeText(context, "Quantity must be greater than 0", Toast.LENGTH_SHORT).show();
-                    }
+                // Validation
+                if (newQuantityStr.isEmpty()) {
+                    quantityInputLayout.setError("Quantity cannot be empty");
+                    return;
                 }
-            }
+
+                try {
+                    int newQuantity = Integer.parseInt(newQuantityStr);
+
+                    if (newQuantity <= 0) {
+                        quantityInputLayout.setError("Quantity must be greater than 0");
+                        return;
+                    }
+
+                    if (newQuantity > maxQuantity) {
+                        quantityInputLayout.setError("Exceeds available stock");
+                        return;
+                    }
+
+                    // Update quantity
+                    productobject product = cart_product.get(position);
+                    float pricePerUnit = Float.parseFloat(product.getPrice());
+                    float newTotal = pricePerUnit * newQuantity;
+
+                    product.setQuantity(String.valueOf(newQuantity));
+                    product.setTotal_price(String.valueOf(newTotal));
+
+                    holder.total_quantity.setText(String.valueOf(newQuantity));
+                    holder.total_price.setText(String.format("₱ %.2f", newTotal));
+
+
+                    checkoutdb.updatecheckout(product.getId(), String.valueOf(newQuantity), String.valueOf(newTotal));
+                    cartUpdateListener.onCartUpdated();
+                    dialog.dismiss();
+
+                    Toast.makeText(context, "Quantity updated", Toast.LENGTH_SHORT).show();
+                } catch (NumberFormatException e) {
+                    quantityInputLayout.setError("Invalid quantity");
+                }
+            });
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+// Clear error when typing
+        quantityEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                quantityInputLayout.setError(null);
             }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
-        builder.show();
+        dialog.show();
     }
 
 
@@ -236,11 +277,11 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView productImage;
-        TextView productname, productprice, total_price, total_quantity;
+        TextView productname, productprice, total_price, total_quantity, availableQuantity;
         ImageView increaceItem, addButton, decreaceItem, deleteButton;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
+            availableQuantity = itemView.findViewById(R.id.AvailableQuantity);
             productImage = itemView.findViewById(R.id.checkout_image);
             productname = itemView.findViewById(R.id.product_name);
             productprice = itemView.findViewById(R.id.price);
