@@ -45,6 +45,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     private OnviewAnalytics onviewAnalytics;
     private String total_sold;
     private User currentUser;
+    private OnIndecatorUpdate updateIndecator;
 
     // Grouped data structure for dashboard
     public static class CheckoutGroup {
@@ -57,9 +58,10 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     }
     private ArrayList<CheckoutGroup> checkoutGroups = new ArrayList<>();
 
-    public static DashboardActivity newInstance(OnviewAnalytics listener, User currentUser) {
+    public static DashboardActivity newInstance(OnviewAnalytics listener, User currentUser, OnIndecatorUpdate updated_indecator) {
         DashboardActivity fragment = new DashboardActivity();
         fragment.onviewAnalytics = listener;
+        fragment.updateIndecator = updated_indecator;
         fragment.currentUser = currentUser;
         return fragment;
     }
@@ -71,6 +73,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateIndecator.Update_indecator();
         try {
             if (getContext() == null) {
                 Log.e(TAG, "Context is null in onCreate");
@@ -107,7 +110,8 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
 
             checkoutGroups.clear();
 
-
+            // Load and display data
+            loadDashboardData();
 
             // Initialize views
             if (!initializeViews(view)) {
@@ -116,8 +120,9 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
                 return view;
             }
 
-            // Load and display data
-            loadDashboardData();
+
+
+
 
 
         } catch (Exception e) {
@@ -134,6 +139,31 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
             activeProductsCount = view.findViewById(R.id.active_Products_Count);
             profitChangeText = view.findViewById(R.id.Subtitle);
             recyclerView = view.findViewById(R.id.recyclerSold);
+
+
+            // Update total orders
+            int totalOrders = checkoutGroups.size();
+            if (totalOrdersCount != null) {
+                totalOrdersCount.setText(String.valueOf(totalOrders));
+            }
+
+            // Update active products
+            int activeProducts = getActiveProductsCount();
+            if (activeProductsCount != null) {
+                activeProductsCount.setText(String.valueOf(activeProducts));
+            }
+
+            // Update profit change percentage
+            calculateAndDisplayProfitChange();
+
+
+            // Update total profit
+            int totalProfit = getTotalProfit();
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
+            String formattedProfit = currencyFormat.format(totalProfit);
+            if (total_price_sold != null) {
+                total_price_sold.setText(formattedProfit);
+            }
 
 
             // Check if any essential views are null
@@ -156,7 +186,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
             if (fabAnalytics != null && onviewAnalytics != null) {
                 fabAnalytics.setOnClickListener(v -> {
                     if (onviewAnalytics != null) {
-                        onviewAnalytics.viewAnalytics();
+                        onviewAnalytics.viewAnalytics(String.valueOf(totalOrders));
                     }
                 });
             }
@@ -172,7 +202,6 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     private void loadDashboardData() {
         try {
             getGroupedProducts();
-            updateDashboardStats();
         } catch (Exception e) {
             Log.e(TAG, "Error loading dashboard data", e);
             if (getContext() != null) {
@@ -181,34 +210,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
         }
     }
 
-    private void updateDashboardStats() {
-        try {
-            // Update total profit
-            int totalProfit = getTotalProfit();
-            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
-            String formattedProfit = currencyFormat.format(totalProfit);
-            if (total_price_sold != null) {
-                total_price_sold.setText(formattedProfit);
-            }
 
-            // Update total orders
-            int totalOrders = checkoutGroups.size();
-            if (totalOrdersCount != null) {
-                totalOrdersCount.setText(String.valueOf(totalOrders));
-            }
-
-            // Update active products
-            int activeProducts = getActiveProductsCount();
-            if (activeProductsCount != null) {
-                activeProductsCount.setText(String.valueOf(activeProducts));
-            }
-
-            // Update profit change percentage
-            calculateAndDisplayProfitChange();
-        } catch (Exception e) {
-            Log.e(TAG, "Error updating dashboard stats", e);
-        }
-    }
 
     private int getActiveProductsCount() {
         Cursor cursor = null;
@@ -359,7 +361,7 @@ public class DashboardActivity extends Fragment implements OnTotalProfitUpdate, 
     }
 
     @Override
-    public void viewAnalytics() {
+    public void viewAnalytics(String tolal) {
         // Implement analytics view
         if (getContext() != null) {
             Toast.makeText(getContext(), "Opening Analytics", Toast.LENGTH_SHORT).show();

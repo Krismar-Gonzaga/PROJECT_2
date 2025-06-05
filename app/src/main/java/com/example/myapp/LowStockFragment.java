@@ -15,21 +15,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class LowStockFragment extends Fragment implements OnEditProductClickListener {
+    private OnIndecatorUpdate updatedIndecator;
     private OnEditProductClickListener parentEditListener;
     private database dbHelper;
     private RecyclerView recyclerView;
     private LowStockAdapter adapter;
     private TextView emptyView;
 
-    public LowStockFragment(OnEditProductClickListener editProduct){
+    public LowStockFragment(OnEditProductClickListener editProduct, OnIndecatorUpdate updateIndecator){
         this.parentEditListener = editProduct;
+        this.updatedIndecator = updateIndecator;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_low_stock, container, false);
-
+        updatedIndecator.Update_indecator();
         dbHelper = new database(getActivity());
         recyclerView = view.findViewById(R.id.low_stock_recycler);
         emptyView = view.findViewById(R.id.empty_low_stock_view);

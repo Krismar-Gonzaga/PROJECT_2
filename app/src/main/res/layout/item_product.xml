@@ -7,6 +7,25 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
+    <TextView
+        android:id="@+id/cartQuantityBadge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignTop="@id/btnAdd"
+        android:layout_alignEnd="@id/btnAdd"
+        android:background="@drawable/badge_background"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="2"/>
+    <!-- Add this LinearLayout as the first child of CardView for the in-cart indicator -->
+    <LinearLayout
+        android:id="@+id/inCartIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#76C043"
+        android:visibility="gone"
+        android:orientation="horizontal"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,4 +112,5 @@
                 />
         </LinearLayout>
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

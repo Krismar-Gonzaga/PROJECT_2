@@ -2,5 +2,5 @@ package com.example.myapp;
 
 public interface OnviewAnalytics {
 
-    void viewAnalytics();
+    void viewAnalytics(String TotalTransaction);
 }

@@ -139,11 +139,12 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteItem(position,cart_product.get(position).getId());
+                showDeleteConfirmationDialog(position,cart_product.get(position).getId());
             }
         });
 
     }
+
 
     private void deleteItem(int position, String productId) {
         // 1. Delete from database
@@ -271,6 +272,15 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
             }
         }
         return null;
+    }
+
+    private void showDeleteConfirmationDialog(int position, String productId) {
+        new AlertDialog.Builder(context)
+                .setTitle("Delete Product")
+                .setMessage("Are you sure you want to delete this product?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteItem(position, productId))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
 

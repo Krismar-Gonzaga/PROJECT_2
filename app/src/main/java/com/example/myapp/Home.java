@@ -31,6 +31,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 
 public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateListener, productrecyclerview.OnCartUpdateListener {
+    private OnIndecatorUpdate updatedIndecator;
     RecyclerView recyclerView;
     productrecyclerview adapter;
     ArrayList<productobject> Product = new ArrayList<>();
@@ -54,14 +55,16 @@ public class Home extends Fragment implements OntotalCartUpdated, OnCartUpdateLi
     };
 
     homeactivity homeactivity = new homeactivity();
-    public Home(OntotalCartUpdated Oncartupdate) {
+    public Home(OntotalCartUpdated Oncartupdate, OnIndecatorUpdate updateIndecator) {
         // Required empty public constructor
         this.Oncartupdate = Oncartupdate;
+        this.updatedIndecator = updateIndecator;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updatedIndecator.Update_indecator();
     }
 
     @SuppressLint("MissingInflatedId")

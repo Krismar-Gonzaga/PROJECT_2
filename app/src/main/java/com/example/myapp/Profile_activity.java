@@ -10,6 +10,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,16 +26,19 @@ import java.io.Serializable;
 
 public class Profile_activity extends Fragment {
     private static final String ARG_USER = "currentUser";
+    private static final String UpdateIdecator = "UpdatedIdecator";
     private static final int PICK_IMAGE_REQUEST = 1;
     private User currentUser;
+    private OnIndecatorUpdate updateIndecator;
     private ImageView profileImageView;
     private database dbHelper;
 
     // Factory method using Parcelable
-    public static Profile_activity newInstance(User currentUser) {
+    public static Profile_activity newInstance(User currentUser, OnIndecatorUpdate updateIndecator) {
         Profile_activity fragment = new Profile_activity();
         Bundle args = new Bundle();
         args.putParcelable(ARG_USER, currentUser); // Using putParcelable
+        args.putParcelable(UpdateIdecator, updateIndecator);
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,8 +48,10 @@ public class Profile_activity extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             currentUser = getArguments().getParcelable(ARG_USER);
+            updateIndecator = getArguments().getParcelable(UpdateIdecator);
         }
         dbHelper = new database(getContext());
+        updateIndecator.Update_indecator();
     }
 
     @SuppressLint("MissingInflatedId")

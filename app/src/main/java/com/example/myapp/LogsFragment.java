@@ -16,19 +16,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class LogsFragment extends Fragment {
+    private OnIndecatorUpdate UpdateIndecator;
     private RecyclerView recyclerView;
     private Button btnExportLogs;
     private LogsAdapter logsAdapter;
 
-    public LogsFragment() {
+    public LogsFragment(OnIndecatorUpdate updateIndecator) {
         // Required empty public constructor
+        this.UpdateIndecator = updateIndecator;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_logs, container, false);
-
+        UpdateIndecator.Update_indecator();
         recyclerView = view.findViewById(R.id.recycler_view_logs);
         btnExportLogs = view.findViewById(R.id.btn_export_logs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

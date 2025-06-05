@@ -15,13 +15,15 @@ import java.util.Locale;
 
 public class AnalyticsFragment extends Fragment {
 
+    private String totalOrders;
     private database dbHelper;
     private TextView totalSalesValue, totalProductsValue, avgSaleValue, bestSellingProduct;
     private TextView revenueTodayValue, revenueWeekValue, revenueMonthValue;
     private TextView totalTransactionsValue, inventoryValue;
 
-    public AnalyticsFragment() {
+    public AnalyticsFragment(String totalOrders) {
         // Required empty public constructor
+        this.totalOrders = totalOrders;
     }
 
     @Override
@@ -79,7 +81,7 @@ public class AnalyticsFragment extends Fragment {
 
         // Get total transactions
         int totalTransactions = getTotalTransactions();
-        totalTransactionsValue.setText(String.valueOf(totalTransactions));
+        totalTransactionsValue.setText(String.valueOf(totalOrders));
 
         // Get inventory value
         float inventoryTotal = getInventoryValue();

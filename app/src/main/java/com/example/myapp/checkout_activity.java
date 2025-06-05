@@ -25,6 +25,7 @@ import java.util.Locale;
 public class checkout_activity extends Fragment implements OnCartUpdateListener, OnSuccessfulCheckoutListener {
 
     private final OnSuccessfulCheckoutListener OnSuccessfulCheckout;
+    private OnIndecatorUpdate updateIndecator;
     database checkoutdb;
     TextView total_bill;
     ArrayList<productobject> Cart_Product = new ArrayList<>();
@@ -38,17 +39,18 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     private View bottomContainer;
     private View headerContainer;
 
-    public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock) {
+    public checkout_activity(OnSuccessfulCheckoutListener Backhome, OntotalCartUpdated Oncartupdate, OnlowStockchecker checklowstock, OnIndecatorUpdate update_indecator) {
         this.OnSuccessfulCheckout = Backhome;
         this.Oncartupdate = Oncartupdate;
         this.checklowstock = checklowstock;
+        this.updateIndecator = update_indecator;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.checkout_activity, container, false);
-
+        updateIndecator.Update_indecator();
         // Initialize views
         total_bill = view.findViewById(R.id.total_bill);
         recyclerView = view.findViewById(R.id.checkoutrecyclerView);
@@ -316,6 +318,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     public void BackHome() {
 
     }
+
+
 
 
 

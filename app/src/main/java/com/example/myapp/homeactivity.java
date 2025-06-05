@@ -9,6 +9,7 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +31,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class homeactivity extends AppCompatActivity implements OnlowStockchecker, OntotalCartUpdated, OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics, OnMenuVisibility {
+public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate, OnlowStockchecker, OntotalCartUpdated, OnEditProductClickListener,OnCartUpdateListener,OnSuccessfulCheckoutListener,OnviewAnalytics, OnMenuVisibility {
 
     // Views
     private TextView cartBadge, PageName;
@@ -54,6 +55,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
         // Initialize views
         initViews();
+
 
         // Get current user from intent
         currentUser = getIntent().getParcelableExtra("CURRENT_USER");
@@ -106,6 +108,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             // Default to dashboard
             openDashboard();
         }
+        updateNavigationIndicators();
     }
 
     @Override
@@ -204,7 +207,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             if (id == R.id.nav_inventory) {
 
                 if(currentUser.getType().equals("admin")) {
-                    navigateToFragment(new Inventory(this), "Inventory");
+                    navigateToFragment(new Inventory(this,this), "Inventory");
                 }else{
                     Toast.makeText(this, "Admin Access Only!", Toast.LENGTH_SHORT).show();
                 }
@@ -214,7 +217,8 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             }
             else if (id == R.id.nav_logs) {
                 if(currentUser.getType().equals("admin")) {
-                    navigateToFragment(new LogsFragment(), "Logs");
+                    navigateToFragment(new LogsFragment(this), "Logs");
+                    updateNavigationIndicators();
                 } else {
                     Toast.makeText(this, "Admin access only", Toast.LENGTH_SHORT).show();
                 }
@@ -224,9 +228,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             }else if (id == R.id.action_low_stock){
                 PageName.setText("Notification");
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new LowStockFragment(this))
+                        .replace(R.id.fragment_container, new LowStockFragment(this, this))
                         .addToBackStack(null)
                         .commit();
+                updateNavigationIndicators();
 
             }
 
@@ -236,19 +241,21 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         });
 
         // Other click listeners
-        backhome.setOnClickListener(v -> navigateToFragment(new Home(this), "Store"));
+        backhome.setOnClickListener(v -> navigateToFragment(new Home(this, this), "Store"));
 
         // Update the dashboard click listener
         dashboard.setOnClickListener(v -> {
             if (currentUser != null) {
                 try {
-                    DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
+                    DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser, this);
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, dashboardFragment)
                             .addToBackStack("dashboard")
                             .commit();
                     PageName.setText("Dashboard");
+                    updateNavigationIndicators();
+                    updateNavigationIndicators();
                     floatingActionButton.hide(); // Hide FAB when in dashboard
                     if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                         drawerLayout.closeDrawer(GravityCompat.END);
@@ -261,7 +268,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         });
 
         checkoutbtn.setOnClickListener(v -> {
-            navigateToFragment(new checkout_activity(this, this,this), "Checkout");
+            navigateToFragment(new checkout_activity(this, this,this, this  ), "Checkout");
             floatingActionButton.hide();
         });
 
@@ -286,6 +293,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
+        updateNavigationIndicators();
         // Execute pending transactions to ensure fragment is attached
         getSupportFragmentManager().executePendingTransactions();
         updateFabVisibility();
@@ -296,9 +304,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         Toast.makeText(this, currentUser.getName(), Toast.LENGTH_SHORT).show();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, Profile_activity.newInstance(currentUser))
+                .replace(R.id.fragment_container, Profile_activity.newInstance(currentUser,this))
                 .addToBackStack("profile_fragment")
                 .commit();
+        updateNavigationIndicators();
     }
     private void navigateToLogout() {
         LogManager.getInstance(getApplicationContext()).log("User logged out: " + (currentUser != null ? currentUser.getEmailAddress() : "unknown"));
@@ -391,44 +400,57 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
             }
         } else {
             // If we're at the root of the back stack, show the Dashboard
-            DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
+            DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser, this);
             fragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, dashboardFragment)
                 .commit();
             PageName.setText("Dashboard");
+
         }
         updateFabVisibility();
     }
 
     private void updatePageTitle(Fragment fragment) {
+
         if (fragment instanceof DashboardActivity) {
             PageName.setText("Dashboard");
+            updateNavigationIndicators();
         } else if (fragment instanceof Home) {
             PageName.setText("Store");
+            updateNavigationIndicators();
         } else if (fragment instanceof Inventory) {
             PageName.setText("Inventory");
+            updateNavigationIndicators();
         } else if (fragment instanceof LogsFragment) {
             PageName.setText("Logs");
+            updateNavigationIndicators();
         } else if (fragment instanceof Profile_activity) {
             PageName.setText("Profile");
+            updateNavigationIndicators();
         } else if (fragment instanceof checkout_activity) {
             PageName.setText("Checkout");
+            updateNavigationIndicators();
         } else if (fragment instanceof LowStockFragment) {
             PageName.setText("Notification");
+            updateNavigationIndicators();
         } else if (fragment instanceof product) {
             PageName.setText("Add Product");
+            updateNavigationIndicators();
         } else if (fragment instanceof edit_Activity) {
             PageName.setText("Edit Product");
+            updateNavigationIndicators();
         }else if (fragment instanceof AnalyticsFragment) {
             PageName.setText("Dashboard");
+            updateNavigationIndicators();
         }
 
     }
 
     @Override
     public void BackHome() {
-        navigateToFragment(new Home(this), "Store");
+        navigateToFragment(new Home(this, this), "Store");
+        updateNavigationIndicators();
     }
 
     @Override
@@ -439,6 +461,23 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
 
 
+    private void updateNavigationIndicators() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        // Reset all indicators first
+        backhome.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.text_light)));
+        dashboard.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.text_light)));
+        checkoutbtn.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.text_light)));
+
+        // Highlight the current section
+        if (currentFragment instanceof Home) {
+            backhome.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_green)));
+        } else if (currentFragment instanceof DashboardActivity) {
+            dashboard.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_green)));
+        } else if (currentFragment instanceof checkout_activity) {
+            checkoutbtn.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_green)));
+        }
+    }
 
 
 
@@ -446,11 +485,15 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
 
 
 
-    public void analyticsview(){
+
+
+
+
+    public void analyticsview(String totalTransaction){
         FloatingActionButton fabAnalytics = findViewById(R.id.fabAnalytics);
         fabAnalytics.setOnClickListener(view -> {
             // Open AnalyticsFragment
-            AnalyticsFragment analyticsFragment = new AnalyticsFragment();
+            AnalyticsFragment analyticsFragment = new AnalyticsFragment(totalTransaction);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, analyticsFragment) // Replace with your container ID
                     .addToBackStack(null)
@@ -459,8 +502,8 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     }
 
     @Override
-    public void viewAnalytics() {
-        analyticsview();
+    public void viewAnalytics(String totalTransaction) {
+        analyticsview(totalTransaction);
     }
 
     @Override
@@ -502,7 +545,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_low_stock) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new LowStockFragment(this))
+                    .replace(R.id.fragment_container, new LowStockFragment(this, this))
                     .addToBackStack(null)
                     .commit();
             return true;
@@ -516,7 +559,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
     }
 
     private void openDashboard() {
-        DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser);
+        DashboardActivity dashboardFragment = DashboardActivity.newInstance(this,currentUser, this);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, dashboardFragment)
@@ -532,7 +575,7 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
         PageName.setText("Notification");
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new LowStockFragment(this))
+                .replace(R.id.fragment_container, new LowStockFragment(this, this))
                 .addToBackStack("notification")
                 .commit();
     }
@@ -560,5 +603,10 @@ public class homeactivity extends AppCompatActivity implements OnlowStockchecker
                 dashboard.setVisibility(VISIBLE);
             }
         }
+    }
+
+    @Override
+    public void Update_indecator() {
+        updateNavigationIndicators();
     }
 }

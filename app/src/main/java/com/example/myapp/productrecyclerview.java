@@ -1,6 +1,7 @@
 package com.example.myapp;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +48,7 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
         holder.tvName.setText(product.getName());
         holder.quantity.setText("Total Quantity: " + product.getQuantity());
         holder.tvPrice.setText("₱ " + product.getPrice());
+        holder.addButton.setImageResource(R.drawable.ic_add);
 
         // Set product image if available
         Bitmap image = product.getImage();
@@ -55,53 +58,68 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
         }
 
         // Check if product is already in cart
-        boolean isInCart = isProductInCart(product.getId());
 
-        // Set button color based on cart status
-        updateButtonColor(holder.addButton, isInCart);
+        int cartQuantity = getCartQuantity(product.getId());
+
+        // Update UI based on cart status
+        updateCartIndicator(holder, product.getId(), cartQuantity);
 
         holder.addButton.setOnClickListener(v -> {
-            // Convert image to byte array if available
-            byte[] imageBytes = null;
-            if (image != null) {
-                imageBytes = convertBitmapToByteArray(image);
-            }
-
-            // Check if product is already in cart and if so, get its quantity
-            int cartQty = getCartQuantity(product.getId());
-            int stockQty = 0;
-            try {
-                stockQty = Integer.parseInt(product.getQuantity());
-            } catch (Exception e) {
-                stockQty = 0;
-            }
-            if (cartQty >= stockQty) {
-                Toast.makeText(context, "Cannot add more than available stock!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Add to checkout with quantity 1
-            boolean isAdded = checkoutdb.add_checkoutproduct(
-                    product.getId(),
-                    product.getName(),
-                    product.getPrice(),
-                    "1", // Default quantity
-                    product.getPrice(), // Total price (price * quantity)
-                    imageBytes
-            );
-
-            if (isAdded) {
-                Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
-                updateButtonColor(holder.addButton, true);
-
-                if (onCartUpdateListener != null) {
-                    onCartUpdateListener.OntotalCartUpdate();
+            // Check if product is already in cart
+            boolean isCart = isProductInCart(product.getId());
+            if (isCart) {
+                // Remove from cart
+                boolean removed = checkoutdb.delete_checkout_Product_from_store(product.getId());
+                if (removed) {
+                    Toast.makeText(context, "Removed from cart", Toast.LENGTH_SHORT).show();
+                    updateCartIndicator(holder, product.getId(), 0);
+                    if (onCartUpdateListener != null) {
+                        onCartUpdateListener.OntotalCartUpdate();
+                    }
                 }
-                notifyDataSetChanged(); // Refresh the entire list to update all buttons
-            } else {
-                Toast.makeText(context, "Product already in cart!", Toast.LENGTH_SHORT).show();
+            }else {
+                // Convert image to byte array if available
+                byte[] imageBytes = null;
+                if (image != null) {
+                    imageBytes = convertBitmapToByteArray(image);
+                }
+
+                // Check if product is already in cart and if so, get its quantity
+                int cartQty = getCartQuantity(product.getId());
+                int stockQty = 0;
+                try {
+                    stockQty = Integer.parseInt(product.getQuantity());
+                } catch (Exception e) {
+                    stockQty = 0;
+                }
+                if (cartQty >= stockQty) {
+                    Toast.makeText(context, "Cannot add more than available stock!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Add to checkout with quantity 1
+                boolean isAdded = checkoutdb.add_checkoutproduct(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        "1", // Default quantity
+                        product.getPrice(), // Total price (price * quantity)
+                        imageBytes
+                );
+
+                if (isAdded) {
+                    Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
+
+                    if (onCartUpdateListener != null) {
+                        onCartUpdateListener.OntotalCartUpdate();
+                    }
+                    notifyDataSetChanged(); // Refresh the entire list to update all buttons
+                } else {
+                    Toast.makeText(context, "Product already in cart!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+        updateCartIndicator(holder, product.getId(), cartQuantity + 1);
     }
 
     private boolean isProductInCart(String productId) {
@@ -136,11 +154,31 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
         return cartQty;
     }
 
-    private void updateButtonColor(ImageView button, boolean isInCart) {
+    private void updateCartIndicator(ViewHolder holder, String productid, int cartQuantity) {
+        // Update the "in cart" indicator
+        boolean isInCart = isProductInCart(productid);
+        holder.inCartIndicator.setVisibility(isInCart ? View.VISIBLE : View.GONE);
+
+        // Update the add button
         if (isInCart) {
-            button.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+            holder.addButton.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.green)));
+            holder.addButton.setImageResource(R.drawable.ic_check); // Change icon to checkmark
+            holder.addButton.setContentDescription("Remove from cart");
+
+            // Show quantity in cart if more than 1
+            if (cartQuantity > 1) {
+                holder.cartQuantityBadge.setVisibility(View.VISIBLE);
+                holder.cartQuantityBadge.setText(String.valueOf(cartQuantity));
+            } else {
+                holder.cartQuantityBadge.setVisibility(View.GONE);
+            }
         } else {
-            button.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_light));
+            holder.addButton.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.red)));
+            holder.addButton.setImageResource(R.drawable.ic_add);
+            holder.addButton.setContentDescription("Add to cart");
+            holder.cartQuantityBadge.setVisibility(View.GONE);
         }
     }
 
@@ -155,8 +193,9 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPrice, quantity;
+        TextView tvName, tvPrice, quantity, cartQuantityBadge;
         ImageView addButton, productImage;
+        View inCartIndicator;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -165,6 +204,10 @@ public class productrecyclerview extends RecyclerView.Adapter<productrecyclervie
             quantity = itemView.findViewById(R.id.quantity);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             addButton = itemView.findViewById(R.id.btnAdd);
+            inCartIndicator = itemView.findViewById(R.id.inCartIndicator);
+
+            // Add a badge for showing quantity in cart
+            cartQuantityBadge = itemView.findViewById(R.id.cartQuantityBadge);
         }
     }
 

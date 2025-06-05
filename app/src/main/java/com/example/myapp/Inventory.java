@@ -35,6 +35,7 @@ import com.google.android.material.textfield.TextInputEditText;
 public class Inventory extends Fragment implements OnEditProductClickListener, OnInventoryUpdate {
 
     private final OnEditProductClickListener OneditProduct;
+    private OnIndecatorUpdate UpdateIndecator;
     database db;
     private ArrayList<productobject> Product = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -60,15 +61,16 @@ public class Inventory extends Fragment implements OnEditProductClickListener, O
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<Intent> cameraLauncher;
 
-    public Inventory(OnEditProductClickListener OneditProduct) {
+    public Inventory(OnEditProductClickListener OneditProduct, OnIndecatorUpdate updateIndecator) {
         // Required empty public constructor
         this.OneditProduct = OneditProduct;
+        this.UpdateIndecator = updateIndecator;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        UpdateIndecator.Update_indecator();
         // Initialize activity result launchers
         galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
