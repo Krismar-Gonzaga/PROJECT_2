@@ -597,7 +597,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
             if ("user".equals(currentUser.getType())) {
                 navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
                 navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(false);
-                dashboard.setVisibility(INVISIBLE);
+                dashboard.setVisibility(VISIBLE);
             } else if ("admin".equals(currentUser.getType())) {
                 navigationView.getMenu().findItem(R.id.nav_logs).setVisible(true);
                 navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(true);

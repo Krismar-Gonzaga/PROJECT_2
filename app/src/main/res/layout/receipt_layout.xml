@@ -51,7 +51,24 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        app:cardBackgroundColor="#76C043"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
 
+                        <TextView
+                            android:id="@+id/receipt_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:gravity="start"
+                            android:padding="16dp"/>
+                    </com.google.android.material.card.MaterialCardView>
                     <TextView
                         android:id="@+id/receipt_store_name"
                         android:layout_width="match_parent"
@@ -140,24 +157,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"/>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="#76C043"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
 
-                <TextView
-                    android:id="@+id/receipt_total"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:gravity="right"
-                    android:padding="16dp"/>
-            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/receipt_thank_you"
