@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class LowStockFragment extends Fragment implements OnEditProductClickListener {
+    private User currentUser;
     private OnIndecatorUpdate updatedIndecator;
     private OnEditProductClickListener parentEditListener;
     private database dbHelper;
@@ -22,9 +23,10 @@ public class LowStockFragment extends Fragment implements OnEditProductClickList
     private LowStockAdapter adapter;
     private TextView emptyView;
 
-    public LowStockFragment(OnEditProductClickListener editProduct, OnIndecatorUpdate updateIndecator){
+    public LowStockFragment(OnEditProductClickListener editProduct, OnIndecatorUpdate updateIndecator , User currentUser){
         this.parentEditListener = editProduct;
         this.updatedIndecator = updateIndecator;
+        this.currentUser = currentUser;
     }
 
     @Nullable
@@ -51,7 +53,7 @@ public class LowStockFragment extends Fragment implements OnEditProductClickList
             recyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
 
-            adapter = new LowStockAdapter(getActivity(), cursor, this);
+            adapter = new LowStockAdapter(getActivity(), cursor, this, currentUser);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
         }

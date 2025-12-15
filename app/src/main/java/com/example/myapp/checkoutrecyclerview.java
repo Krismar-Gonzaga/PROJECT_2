@@ -64,7 +64,7 @@ public class checkoutrecyclerview extends RecyclerView.Adapter<checkoutrecyclerv
         holder.productprice.setText("₱ " + cart_product.get(position).getPrice());
         holder.total_price.setText("Total: ₱ " + cart_product.get(position).getTotal_price());
         holder.total_quantity.setText(cart_product.get(position).getQuantity());
-        String  availablequantity = cart_product.get(position).getOverquantity();
+        String  availablequantity = getcurrentProduct(cart_product.get(position)).getQuantity();
         holder.availableQuantity.setText("Available: " + availablequantity);
 
         Bitmap image = cart_product.get(position).getImage();

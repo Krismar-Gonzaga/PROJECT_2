@@ -1,10 +1,13 @@
 package com.example.myapp;
 
+import static android.view.View.GONE;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,15 +19,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowStockViewHolder> {
+    private User currentUser;
     private OnEditProductClickListener editproduct;
     private Context context;
     private Cursor cursor;
     private database db;
 
-    public LowStockAdapter(Context context, Cursor cursor, OnEditProductClickListener editproduct) {
+    public LowStockAdapter(Context context, Cursor cursor, OnEditProductClickListener editproduct, User currentUser) {
         this.context = context;
         this.cursor = cursor;
         this.editproduct = editproduct;
+        this.currentUser = currentUser;
     }
 
     @NonNull
@@ -32,6 +37,7 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
     public LowStockViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.item_low_stock, parent, false);
+
         return new LowStockViewHolder(view);
     }
 
@@ -41,6 +47,18 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
             return;
         }
 
+        if (currentUser.getType().equals("admin")) {
+            holder.cardView.setClickable(true);
+            holder.cardView.setFocusable(true);
+
+
+        }else{
+            holder.cardView.setClickable(false);
+            holder.cardView.setFocusable(false);
+            holder.edit_stock.setVisibility(GONE);
+
+        }
+
         db = new database(context.getApplicationContext());
 
         // Get product details
@@ -48,7 +66,7 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
         String name = cursor.getString(cursor.getColumnIndexOrThrow(database.COL_PRODUCT_NAME));
         double price = cursor.getDouble(cursor.getColumnIndexOrThrow(database.COL_PRICE));
         int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(database.COL_QUANTITY));
-//        String category = cursor.getString(6);
+
 
 
 
@@ -63,7 +81,7 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
             String.valueOf(quantity), // Over quantity
             null, // Image
             "", // Description
-            "Drinks"
+            ""
         );
 
         productobject producttoedit = getcurrentProduct(product);
@@ -82,16 +100,18 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
             holder.productQuantity.setTextColor(context.getResources().getColor(android.R.color.darker_gray));
         }
 
+
         // Set click listener to edit the product
         holder.cardView.setOnClickListener(v -> {
-            if (editproduct != null) {
-                editproduct.onEditProduct(producttoedit);
+            if (currentUser.getType().equals("admin")) {
+                if (editproduct != null) {
+                    editproduct.onEditProduct(producttoedit);
+                }
             }
+
         });
 
-        // Add ripple effect
-        holder.cardView.setClickable(true);
-        holder.cardView.setFocusable(true);
+
     }
 
     @Override
@@ -110,10 +130,12 @@ public class LowStockAdapter extends RecyclerView.Adapter<LowStockAdapter.LowSto
     public static class LowStockViewHolder extends RecyclerView.ViewHolder {
         TextView productName, productQuantity, productPrice, date;
         CardView cardView;
+        ImageView edit_stock;
 
         public LowStockViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = (CardView) itemView;
+            edit_stock = itemView.findViewById(R.id.edit_stock);
             date = itemView.findViewById(R.id.nofication_date);
             productName = itemView.findViewById(R.id.low_stock_product_name);
             productQuantity = itemView.findViewById(R.id.low_stock_quantity);

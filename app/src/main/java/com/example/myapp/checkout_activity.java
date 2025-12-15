@@ -129,44 +129,48 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         ArrayList<productobject> cartItems = get_Checkout_item();
 
         for (productobject cartItem : cartItems) {
-            for (productobject inventoryItem : inventoryItems) {
-                if (cartItem.getId().equals(inventoryItem.getId())) {
-                    try {
-                        int currentQty = Integer.parseInt(inventoryItem.getQuantity());
-                        int cartQty = Integer.parseInt(cartItem.getQuantity());
-                        int newQty = currentQty - cartQty;
-                        Bitmap image = cartItem.getImage();
-                        byte[] imageBytes = null;
-                        if (image != null) {
-                            imageBytes = convertBitmapToByteArray(image);
-                        }
+            if (Integer.parseInt(cartItem.getQuantity()) != 0) {
+                for (productobject inventoryItem : inventoryItems) {
+                    if (cartItem.getId().equals(inventoryItem.getId())) {
+                        try {
+                            int currentQty = Integer.parseInt(inventoryItem.getQuantity());
+                            int cartQty = Integer.parseInt(cartItem.getQuantity());
+                            int newQty = currentQty - cartQty;
+                            Bitmap image = cartItem.getImage();
+                            byte[] imageBytes = null;
+                            if (image != null) {
+                                imageBytes = convertBitmapToByteArray(image);
+                            }
 
-                        if (newQty >= 0) {
-                            inventoryItem.setQuantity(String.valueOf(newQty));
-                            checkoutdb.update_checkout_Product(inventoryItem);
-                            checkoutdb.add_sold_product(
-                                    cartItem.getId(),
-                                    cartItem.getName(),
-                                    cartItem.getPrice(),
-                                    cartItem.getQuantity(),
-                                    cartItem.getTotal_price(),
-                                    imageBytes,
-                                    transactionId
-                            );
-                            isProcessed = true;
-                        } else {
+                            if (newQty >= 0) {
+                                inventoryItem.setQuantity(String.valueOf(newQty));
+                                checkoutdb.update_checkout_Product(inventoryItem);
+                                checkoutdb.add_sold_product(
+                                        cartItem.getId(),
+                                        cartItem.getName(),
+                                        cartItem.getPrice(),
+                                        cartItem.getQuantity(),
+                                        cartItem.getTotal_price(),
+                                        imageBytes,
+                                        transactionId
+                                );
+                                isProcessed = true;
+                            } else {
+                                Toast.makeText(getContext(),
+                                        "Not enough stock for " + inventoryItem.getName(),
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
                             Toast.makeText(getContext(),
-                                    "Not enough stock for " + inventoryItem.getName(),
+                                    "Invalid quantity format",
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(getContext(),
-                                "Invalid quantity format",
-                                Toast.LENGTH_SHORT).show();
-                        return;
                     }
+
                 }
+
             }
         }
 
@@ -240,6 +244,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
         ArrayList<productobject> cartItems = new ArrayList<>();
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
+                if (Integer.parseInt(cursor.getString(4)) != 0){
                 byte[] imageBytes = cursor.getBlob(7); // Assuming image is at index 6
                 Bitmap productImage = null;
 
@@ -257,6 +262,7 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
                         "",
                         ""
                 ));
+                }
             }
         }
         cursor.close();
@@ -319,6 +325,8 @@ public class checkout_activity extends Fragment implements OnCartUpdateListener,
     public void BackHome() {
 
     }
+
+
 
 
 

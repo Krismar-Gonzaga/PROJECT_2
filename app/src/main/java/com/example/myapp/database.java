@@ -489,6 +489,7 @@ public boolean update_checkout_from_edit(productobject product) {
             values.put(COL_QUANTITY, newQuantity);
             values.put(COL_TOTAL_PRICE, newTotalPrice);
 
+
             int rowsUpdated = db.update(TABLE_CHECKOUT, values,
                     COL_CHECKOUT_ID + " = ?",
                     new String[]{id});

@@ -59,6 +59,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
 
         // Get current user from intent
         currentUser = getIntent().getParcelableExtra("CURRENT_USER");
+        updateMenuVisibility();
 
         if (currentUser == null) {
             // If no user is logged in, redirect to login
@@ -95,6 +96,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
         // Setup navigation drawer
         setupNavigationDrawer();
 
+
         // Check if we should open notification fragment
         if (getIntent().hasExtra("OPEN_FRAGMENT")) {
             String fragmentToOpen = getIntent().getStringExtra("OPEN_FRAGMENT");
@@ -127,9 +129,19 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
         if (newUser != null) {
             currentUser = newUser;
         }
-        
-        // Always update menu visibility
-        updateMenuVisibility();
+
+
+        if (currentUser != null) {
+            if ("user".equals(currentUser.getType())) {
+                navigationView.getMenu().findItem(R.id.nav_logs).setVisible(false);
+                navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(false);
+                dashboard.setVisibility(VISIBLE);
+            } else if ("admin".equals(currentUser.getType())) {
+                navigationView.getMenu().findItem(R.id.nav_logs).setVisible(true);
+                navigationView.getMenu().findItem(R.id.nav_inventory).setVisible(true);
+                dashboard.setVisibility(VISIBLE);
+            }
+        }
         
         // Handle notification intent
         if (intent.hasExtra("OPEN_FRAGMENT")) {
@@ -228,7 +240,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
             }else if (id == R.id.action_low_stock){
                 PageName.setText("Notification");
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new LowStockFragment(this, this))
+                        .replace(R.id.fragment_container, new LowStockFragment(this, this, currentUser))
                         .addToBackStack(null)
                         .commit();
                 updateNavigationIndicators();
@@ -546,7 +558,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_low_stock) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new LowStockFragment(this, this))
+                    .replace(R.id.fragment_container, new LowStockFragment(this, this, currentUser))
                     .addToBackStack(null)
                     .commit();
             return true;
@@ -576,7 +588,7 @@ public class homeactivity extends AppCompatActivity implements OnIndecatorUpdate
         PageName.setText("Notification");
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new LowStockFragment(this, this))
+                .replace(R.id.fragment_container, new LowStockFragment(this, this, currentUser))
                 .addToBackStack("notification")
                 .commit();
     }
